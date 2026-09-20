@@ -15,11 +15,48 @@ const userSchema = new mongoose.Schema(
             lowercase: true,
             trim: true
         },
+        isVerified: {
+        type: Boolean,
+        default: false
+        },
+ 
+      
+
+        registerOtp: {
+    type: String,
+    default: ""
+},
+
+registerOtpExpiry: {
+    type: Date,
+    default: null
+},
+
+        loginOtp: {
+    type: String,
+    default: ""
+},
+
+loginOtpExpiry: {
+    type: Date,
+    default: null
+},
+
 
         password: {
             type: String,
             required: true
         },
+
+        resetPasswordOtp: {
+    type: String,
+    default: ""
+},
+
+resetPasswordOtpExpiry: {
+    type: Date,
+    default: null
+},
 
         profileImage: {
             type: String,
