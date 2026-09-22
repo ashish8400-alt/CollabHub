@@ -130,6 +130,36 @@ const updateProject = async (req, res) => {
 
 
 
+//DeleteProject
+const deleteProject = async (req, res) => {
+    try {
+        const { projectId } = req.params;
+
+        const project = await Project.findOneAndDelete({
+            _id: projectId,
+            owner: req.user.id
+        });
+
+        if (!project) {
+            return res.status(404).json({
+                message: "Project not found or you are not the owner"
+            });
+        }
+
+        res.status(200).json({
+            message: "Project deleted successfully"
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: "Project deletion failed",
+            error: error.message
+        });
+    }
+};
+
+
+
 export {
-    createProject, getMyProjects , getSingleProject, updateProject
+    createProject, getMyProjects , getSingleProject, updateProject, deleteProject
 };

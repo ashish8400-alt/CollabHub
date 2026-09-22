@@ -6,6 +6,9 @@ import cors from "cors";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/auth.routes.js";
 import projectRoutes from "./routes/project.routes.js";
+import memberRoutes from "./routes/member.routes.js";
+
+
 
 // dotenv.config();
 connectDB();
@@ -17,6 +20,8 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/projects", projectRoutes);
+app.use("/api/members", memberRoutes);
+
 
 app.get("/", (req, res)=>{
    res.send("CollabHub API is running");
