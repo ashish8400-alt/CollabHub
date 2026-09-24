@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Rahul Socket Test</title>
+</head>
+
+<body>
+
+    <h1>Rahul Socket Test By Rahul</h1>
+
+    <script src="http://localhost:5000/socket.io/socket.io.js"></script>
+
+    <script>
+
+        // Apna fresh JWT yaha paste karo
+        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhYjJkZmVjZjk4NzkzMDk0ODFhYTM3MyIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzkwMTA4NjAzLCJleHAiOjE3OTA3MTM0MDN9.MH6nBe5YbvsYnP0MpgnfxFh3AKkXIbx0jmNTZ9YlFuQ";
+
+        const socket = io("http://localhost:5000", {
+            auth: {
+                token: token
+            }
+        });
+
+
+        // Rahul server se connect hua
+        socket.on("connect", () => {
+
+            console.log("Rahul connected");
+
+            console.log("Socket ID:", socket.id);
+
+            // Yaha socket.emit("join") nahi hai
+            // Server JWT se Rahul ki ID khud nikal lega
+
+        });
+
+
+        // Rahul ko message receive hoga
+        socket.on("message", (data) => {
+
+            console.log("Message from server:", data);
+
+        });
+
+
+        // Connection error
+        socket.on("connect_error", (error) => {
+
+            console.log("Connection error:", error.message);
+
+        });
+
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Socket Test</title>
+</head>
+
+<body>
+
+    <h1>CollabHub Socket Test By Ashish</h1>
+
+    <script src="http://localhost:5000/socket.io/socket.io.js"></script>
+
+    <script>
+
+        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjZhYjJkZWVmN2Q1Njc4ZjQ3OGMwYzI0NyIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzkwMTA4MTY0LCJleHAiOjE3OTA3MTI5NjR9.Ji7faLy3XE0b2DG6cBO24pmBOBQr9Pj-Nw0nSU5XHGU";
+
+        const socket = io("http://localhost:5000", {
+            auth: {
+                token: token
+            }
+        });
+
+
+        socket.on("connect", () => {
+
+            console.log("Connected to server");
+            console.log("Socket ID:", socket.id);
+
+        });
+
+
+        socket.on("message", (data) => {
+
+            console.log("Message from server:", data);
+
+        });
+
+    </script>
+
+</body>
+</html>

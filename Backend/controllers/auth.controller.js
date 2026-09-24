@@ -108,11 +108,17 @@ user.loginOtpExpiry = new Date(Date.now() + 5 * 60 * 1000);
 
 await user.save();
 
+console.log("OTP generated:", loginOtp);
+console.log("Sending OTP to:", email);
+
 await sendEmail(
     user.email,
     "Your CollabHub Login OTP",
     `Your login OTP is: ${loginOtp}. This OTP is valid for 5 minutes.`
 );
+
+
+console.log("Email sent successfully");
 
 // return res.status(200).json({
 //     message: "OTP sent to your email"
