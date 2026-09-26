@@ -105,14 +105,16 @@ io.on("connection", (socket) => {
 
     });
 
-   socket.on("message", async (data) => {
+  socket.on("message", async (data) => {
 
     console.log("Message received:", data);
 
     const newMessage = await Message.create({
-        sender: data.senderId,
+
+        sender: socket.user.id,
         receiver: data.receiverId,
         message: data.message
+
     });
 
     io.to(data.receiverId).emit("message", newMessage);
