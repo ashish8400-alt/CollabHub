@@ -8,6 +8,16 @@
 
     <h1>Rahul Socket Test By Rahul</h1>
 
+    <input
+        type="text"
+        id="messageInput"
+        placeholder="Type message"
+    >
+
+    <button onclick="sendMessage()">
+        Send
+    </button>
+
     <script src="http://localhost:5000/socket.io/socket.io.js"></script>
 
     <script>
@@ -32,7 +42,22 @@
             // Yaha socket.emit("join") nahi hai
             // Server JWT se Rahul ki ID khud nikal lega
 
-        });
+
+             });
+
+function sendMessage() {
+
+            const message = document.getElementById("messageInput").value;
+
+              socket.emit("message", {
+
+                receiverId: "6ab2deef7d5678f478c0c247",
+
+                message: message
+
+            });
+        }
+       
 
 
         // Rahul ko message receive hoga

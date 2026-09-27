@@ -8,6 +8,16 @@
 
     <h1>CollabHub Socket Test By Ashish</h1>
 
+     <input
+        type="text"
+        id="messageInput"
+        placeholder="Type message"
+    >
+
+    <button onclick="sendMessage()">
+        Send
+    </button>
+
     <script src="http://localhost:5000/socket.io/socket.io.js"></script>
 
     <script>
@@ -28,12 +38,38 @@
 
         });
 
+         // Ashish → Rahul
+        function sendMessage() {
+
+            const message =
+                document.getElementById("messageInput").value;
+
+
+            socket.emit("message", {
+
+                receiverId: "6ab2dfecf9879309481aa373",
+
+                message: message
+
+            });
+
+        }
+
 
         socket.on("message", (data) => {
 
             console.log("Message from server:", data);
 
         });
+
+
+          // Connection error
+        socket.on("connect_error", (error) => {
+
+            console.log("Connection error:", error.message);
+
+        });
+
 
     </script>
 
