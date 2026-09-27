@@ -97,31 +97,35 @@ io.on("connection", (socket) => {
 
     console.log("User connected:", socket.id);
 
-    socket.on("join", (userId) => {
+    // JWT se user ki ID mil rahi hai
+    const userId = socket.user.id;
 
-        socket.join(userId);
+    // User automatically apne room me join hoga
+    socket.join(userId);
 
-        console.log("User joined room:", userId);
+    console.log("User joined room:", userId);
+
+
+    socket.on("message", async (data) => {
+
+        console.log("Message received:", data);
+
+        const newMessage = await Message.create({
+
+            sender: socket.user.id,
+            receiver: data.receiverId,
+            message: data.message
+
+        });
+
+        // Receiver ke room me message bhejo
+        io.to(data.receiverId).emit("message", newMessage);
 
     });
 
-  socket.on("message", async (data) => {
-
-    console.log("Message received:", data);
-
-    const newMessage = await Message.create({
-
-        sender: socket.user.id,
-        receiver: data.receiverId,
-        message: data.message
-
-    });
-
-    io.to(data.receiverId).emit("message", newMessage);
-
 });
 
-});
+
 
 app.use(cors());
 app.use(express.json());
