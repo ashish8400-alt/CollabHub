@@ -19,9 +19,12 @@ import taskRoutes from "./routes/task.routes.js";
 import messageRoutes from "./routes/message.routes.js";
 import notificationRoutes from "./routes/notification.routes.js";
 import commentRoutes from "./routes/comment.routes.js";
+import startDeadlineJob from "./jobs/deadline.job.js";
 
 
 connectDB();
+
+// startDeadlineJob();
 
 
 const app = express();
@@ -36,6 +39,10 @@ const io = new Server(server, {
 });
 
 app.set("io", io);
+
+
+// Deadline job
+startDeadlineJob(io);
 
 // ===============================
 // SOCKET JWT AUTHENTICATION

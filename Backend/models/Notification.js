@@ -27,6 +27,12 @@ const notificationSchema = new mongoose.Schema(
             required: true
         },
 
+        task: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Task",
+            default: null
+        },
+
         message: {
             type: String,
             required: true
