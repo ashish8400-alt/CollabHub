@@ -1,5 +1,6 @@
 import Project from "../models/Project.js";
 import User from "../models/UserTemp.js";
+import Notification from "../models/Notification.js";
 
 
 
@@ -53,6 +54,22 @@ const addMember = async (req, res) => {
         project.members.push(user._id);
 
         await project.save();
+
+        // Create notification
+        const notification = await Notification.create({
+            recipient: user._id,
+            sender: req.user.id,
+            type: "PROJECT_INVITE",
+            message: `You have been added to the project: ${project.name}`
+        });
+
+        // Send real-time notification
+        const io = req.app.get("io");
+
+        io.to(user._id.toString()).emit(
+            "notification",
+            notification
+        );
 
         res.status(200).json({
             message: "Member added successfully"

@@ -18,6 +18,7 @@ import memberRoutes from "./routes/member.routes.js";
 import taskRoutes from "./routes/task.routes.js";
 import messageRoutes from "./routes/message.routes.js";
 import notificationRoutes from "./routes/notification.routes.js";
+import commentRoutes from "./routes/comment.routes.js";
 
 
 connectDB();
@@ -180,6 +181,8 @@ app.use("/api/tasks", taskRoutes );
 app.use("/api/messages", messageRoutes );
 
 app.use("/api/notifications", notificationRoutes );
+
+app.use("/api/comments", commentRoutes );
 
 
 // ===============================

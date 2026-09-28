@@ -264,6 +264,25 @@ const updateTaskStatus = async (req, res) => {
 
         await task.save();
 
+        // Task completed notification
+        if (status === "DONE") {
+
+            const notification = await Notification.create({
+                recipient: task.createdBy,
+                sender: req.user.id,
+                type: "TASK_COMPLETED",
+                message: `Your task "${task.title}" has been completed`
+            });
+
+            // Send real-time notification
+            const io = req.app.get("io");
+
+            io.to(task.createdBy.toString()).emit(
+                "notification",
+                notification
+            );
+        }
+
         res.status(200).json({
             message: "Task status updated successfully",
             task
