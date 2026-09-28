@@ -1,5 +1,7 @@
 import Task from "../models/Task.js";
 import Project from "../models/Project.js";
+import Notification from "../models/Notification.js";
+
 
 
 //createTask
@@ -46,6 +48,21 @@ const createTask = async (req, res) => {
             createdBy: req.user.id
         });
 
+         // Create notification
+        const notification = await Notification.create({
+    recipient: assignedTo,
+    sender: req.user.id,
+    type: "TASK_ASSIGNED",
+    message: `You have been assigned a new task: ${title}`
+});
+
+const io = req.app.get("io");
+
+io.to(assignedTo).emit(
+    "notification",
+    notification
+);
+
         res.status(201).json({
             message: "Task created successfully",
             task
@@ -58,7 +75,6 @@ const createTask = async (req, res) => {
         });
     }
 };
-
 
 
 //getProjectTasks
@@ -95,7 +111,6 @@ const getProjectTasks = async (req, res) => {
         });
     }
 };
-
 
 
 //getSingleTasks
@@ -207,6 +222,7 @@ const updateTask = async (req, res) => {
     }
 };
 
+
 //UpdateTaskStatus
 const updateTaskStatus = async (req, res) => {
     try {
@@ -300,6 +316,7 @@ const deleteTask = async (req, res) => {
         });
     }
 };
+
 
 export {
     createTask , getProjectTasks, getSingleTask , updateTask ,updateTaskStatus ,deleteTask

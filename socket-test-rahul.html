@@ -67,6 +67,13 @@ function sendMessage() {
 
         });
 
+        // Rahul ko notification receive hogi
+socket.on("notification", (data) => {
+
+    console.log("🔔 Notification received:", data);
+
+});
+
 
         // Connection error
         socket.on("connect_error", (error) => {

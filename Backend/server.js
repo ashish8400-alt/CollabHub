@@ -34,6 +34,7 @@ const io = new Server(server, {
     }
 });
 
+app.set("io", io);
 
 // ===============================
 // SOCKET JWT AUTHENTICATION
@@ -128,18 +129,11 @@ io.on("connection", (socket) => {
             // 2. Notification MongoDB me save
             const newNotification =
                 await Notification.create({
-
                     recipient: data.receiverId,
-
                     sender: socket.user.id,
-
                     type: "MESSAGE",
-
-                    message:
-                        "You received a new message"
-
+                    message: "You received a new message"
                 });
-
 
             // 3. Receiver ko real-time message
             io.to(data.receiverId).emit(
@@ -147,25 +141,18 @@ io.on("connection", (socket) => {
                 newMessage
             );
 
-
             // 4. Receiver ko real-time notification
             io.to(data.receiverId).emit(
                 "notification",
                 newNotification
             );
-
-
         } catch (error) {
-
             console.log(
                 "Message error:",
                 error.message
             );
-
         }
-
     });
-
 });
 
 
@@ -182,35 +169,17 @@ app.use(express.json());
 // ROUTES
 // ===============================
 
-app.use(
-    "/api/auth",
-    authRoutes
-);
+app.use("/api/auth", authRoutes );
 
-app.use(
-    "/api/projects",
-    projectRoutes
-);
+app.use("/api/projects", projectRoutes );
 
-app.use(
-    "/api/members",
-    memberRoutes
-);
+app.use( "/api/members", memberRoutes );
 
-app.use(
-    "/api/tasks",
-    taskRoutes
-);
+app.use("/api/tasks", taskRoutes );
 
-app.use(
-    "/api/messages",
-    messageRoutes
-);
+app.use("/api/messages", messageRoutes );
 
-app.use(
-    "/api/notifications",
-    notificationRoutes
-);
+app.use("/api/notifications", notificationRoutes );
 
 
 // ===============================
@@ -218,11 +187,7 @@ app.use(
 // ===============================
 
 app.get("/", (req, res) => {
-
-    res.send(
-        "CollabHub API is running"
-    );
-
+    res.send("CollabHub API is running");
 });
 
 
@@ -230,8 +195,7 @@ app.get("/", (req, res) => {
 // SERVER
 // ===============================
 
-const PORT =
-    process.env.PORT || 5000;
+const PORT =  process.env.PORT || 5000;
 
 
 server.listen(PORT, () => {
