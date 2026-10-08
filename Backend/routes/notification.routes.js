@@ -1,6 +1,6 @@
 import express from "express";
 
-import { createNotification, getMyNotifications, markAsRead , markAllAsRead, getUnreadCount} from "../controllers/notification.controller.js";
+import {  getMyNotifications, markAsRead , markAllAsRead, getUnreadCount} from "../controllers/notification.controller.js";
 
 import authMiddleware from "../middleware/auth.middleware.js";
 
@@ -9,7 +9,7 @@ const router = express.Router();
 
 
 // Create notification
-router.post( "/create", authMiddleware, createNotification );
+// router.post( "/create", authMiddleware, createNotification );
 
 
 // Get my notifications

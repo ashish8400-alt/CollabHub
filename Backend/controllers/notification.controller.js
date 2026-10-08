@@ -2,44 +2,44 @@ import Notification from "../models/Notification.js";
 
 
 // Create notification
-const createNotification = async (req, res) => {
+// const createNotification = async (req, res) => {
 
-    try {
+//     try {
 
-        const { recipient, sender, type, message } = req.body;
+//         const { recipient, sender, type, message } = req.body;
 
-        if (!recipient || !type || !message) {
-            return res.status(400).json({
-                message: "Recipient, type and message are required"
-            });
-        }
-
-
-        const notification = await Notification.create({
-            recipient,
-            sender: sender || null,
-            type,
-            message
-
-        });
+//         if (!recipient || !type || !message) {
+//             return res.status(400).json({
+//                 message: "Recipient, type and message are required"
+//             });
+//         }
 
 
-        res.status(201).json({
-            message: "Notification created successfully",
-            data: notification
-        });
+//         const notification = await Notification.create({
+//             recipient,
+//             sender: sender || null,
+//             type,
+//             message
 
-    } catch (error) {
+//         });
 
-        res.status(500).json({
 
-            message: "Failed to create notification",
+//         res.status(201).json({
+//             message: "Notification created successfully",
+//             data: notification
+//         });
 
-            error: error.message
+//     } catch (error) {
 
-        });
-    }
-};
+//         res.status(500).json({
+
+//             message: "Failed to create notification",
+
+//             error: error.message
+
+//         });
+//     }
+// };
 
 
 
@@ -190,4 +190,4 @@ const getUnreadCount = async (req, res) => {
 };
 
 
-export { createNotification, getMyNotifications, markAsRead, markAllAsRead , getUnreadCount };
+export {  getMyNotifications, markAsRead, markAllAsRead , getUnreadCount };

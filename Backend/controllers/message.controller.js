@@ -1,6 +1,7 @@
 import Message from "../models/Message.js";
 import User from "../models/UserTemp.js";
 import Project from "../models/Project.js";
+import Notification from "../models/Notification.js";
 
 
 const sendMessage = async (req, res) => {
@@ -23,12 +24,53 @@ const sendMessage = async (req, res) => {
             });
         }
 
+        // Check common project
+        const project = await Project.findOne({
+            $or: [
+                {
+                    owner: req.user.id,
+                    members: receiver
+                },
+                {
+                    owner: receiver,
+                    members: req.user.id
+                },
+                {
+                    members: {
+                        $all: [req.user.id, receiver]
+                    }
+                }
+            ]
+        });
+
+        if (!project) {
+            return res.status(403).json({
+                message: "You cannot message this user"
+            });
+        }
+
         // Message create
         const newMessage = await Message.create({
             sender: req.user.id,
             receiver,
             message
         });
+
+        // Notification create
+        const notification = await Notification.create({
+            recipient: receiver,
+            sender: req.user.id,
+            type: "MESSAGE",
+            message: "You received a new message"
+        });
+
+        // Real-time notification
+        const io = req.app.get("io");
+
+        io.to(receiver).emit(
+            "notification",
+            notification
+        );
 
         res.status(201).json({
             message: "Message sent successfully",
@@ -42,7 +84,6 @@ const sendMessage = async (req, res) => {
         });
     }
 };
-
 
 const getMessageHistory = async (req, res) => {
     try {
