@@ -11,6 +11,7 @@ import connectDB from "./config/db.js";
 
 import Message from "./models/Message.js";
 import Notification from "./models/Notification.js";
+import Project from "./models/Project.js";
 
 import authRoutes from "./routes/auth.routes.js";
 import projectRoutes from "./routes/project.routes.js";
@@ -93,14 +94,11 @@ io.on("connection", (socket) => {
         socket.id
     );
 
-
     // JWT se user ki ID
     const userId = socket.user.id;
 
-
     // User automatically apne room me join
     socket.join(userId);
-
 
     console.log(
         "User joined room:",
@@ -121,11 +119,46 @@ io.on("connection", (socket) => {
                 data
             );
 
+            // Receiver check
+            if (!data.receiverId || !data.message) {
+                return;
+            }
+
+            // Check common project
+            const project = await Project.findOne({
+                $or: [
+                    {
+                        owner: userId,
+                        members: data.receiverId
+                    },
+                    {
+                        owner: data.receiverId,
+                        members: userId
+                    },
+                    {
+                        members: {
+                            $all: [userId, data.receiverId]
+                        }
+                    }
+                ]
+            });
+
+            // No common project
+            if (!project) {
+
+                socket.emit(
+                    "messageError",
+                    "You cannot message this user"
+                );
+
+                return;
+            }
+
 
             // 1. Message MongoDB me save
             const newMessage = await Message.create({
 
-                sender: socket.user.id,
+                sender: userId,
 
                 receiver: data.receiverId,
 
@@ -137,11 +170,17 @@ io.on("connection", (socket) => {
             // 2. Notification MongoDB me save
             const newNotification =
                 await Notification.create({
+
                     recipient: data.receiverId,
-                    sender: socket.user.id,
+
+                    sender: userId,
+
                     type: "MESSAGE",
+
                     message: "You received a new message"
+
                 });
+
 
             // 3. Receiver ko real-time message
             io.to(data.receiverId).emit(
@@ -149,15 +188,24 @@ io.on("connection", (socket) => {
                 newMessage
             );
 
+
             // 4. Receiver ko real-time notification
             io.to(data.receiverId).emit(
                 "notification",
                 newNotification
             );
+
+
         } catch (error) {
+
             console.log(
                 "Message error:",
                 error.message
+            );
+
+            socket.emit(
+                "messageError",
+                "Message could not be sent"
             );
         }
     });

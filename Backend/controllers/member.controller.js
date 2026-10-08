@@ -91,8 +91,14 @@ const getProjectMembers = async (req, res) => {
 
         const project = await Project.findOne({
             _id: projectId,
-            members: req.user.id
-        }).populate("members", "name email profileImage role");
+            $or: [
+                { owner: req.user.id },
+                { members: req.user.id }
+            ]
+        }).populate(
+            "members",
+            "name email profileImage role"
+        );
 
         if (!project) {
             return res.status(404).json({
@@ -114,12 +120,13 @@ const getProjectMembers = async (req, res) => {
 };
 
 
+
 //removeMemberByOwner
 const removeMember = async (req, res) => {
     try {
         const { projectId, memberId } = req.params;
 
-        // Project find karo
+        // Check project owner
         const project = await Project.findOne({
             _id: projectId,
             owner: req.user.id
@@ -138,7 +145,18 @@ const removeMember = async (req, res) => {
             });
         }
 
-        // Member ko project se remove karo
+        // Check member actually exists in project
+        const isMember = project.members.some(
+            (id) => id.toString() === memberId
+        );
+
+        if (!isMember) {
+            return res.status(404).json({
+                message: "User is not a member of this project"
+            });
+        }
+
+        // Remove member
         project.members = project.members.filter(
             (id) => id.toString() !== memberId
         );

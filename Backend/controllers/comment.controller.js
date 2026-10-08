@@ -50,6 +50,8 @@
 import Comment from "../models/Comment.js";
 import Task from "../models/Task.js";
 import Notification from "../models/Notification.js";
+import Project from "../models/Project.js";
+
 
 const createComment = async (req, res) => {
     try {
@@ -68,6 +70,21 @@ const createComment = async (req, res) => {
         if (!task) {
             return res.status(404).json({
                 message: "Task not found"
+            });
+        }
+
+        // Check project owner or member
+        const project = await Project.findOne({
+            _id: task.project,
+            $or: [
+                { owner: req.user.id },
+                { members: req.user.id }
+            ]
+        });
+
+        if (!project) {
+            return res.status(403).json({
+                message: "You are not a member of this project"
             });
         }
 
@@ -106,6 +123,7 @@ const createComment = async (req, res) => {
         });
     }
 };
+
 
 export {
     createComment

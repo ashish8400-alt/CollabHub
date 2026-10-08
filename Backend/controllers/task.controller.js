@@ -76,15 +76,18 @@ io.to(assignedTo).emit(
     }
 };
 
-
 //getProjectTasks
 const getProjectTasks = async (req, res) => {
     try {
         const { projectId } = req.params;
 
+        // Check user is project owner OR member
         const project = await Project.findOne({
             _id: projectId,
-            members: req.user.id
+            $or: [
+                { owner: req.user.id },
+                { members: req.user.id }
+            ]
         });
 
         if (!project) {
@@ -96,8 +99,8 @@ const getProjectTasks = async (req, res) => {
         const tasks = await Task.find({
             project: projectId
         })
-        .populate("assignedTo", "name email")
-        .populate("createdBy", "name email");
+            .populate("assignedTo", "name email")
+            .populate("createdBy", "name email");
 
         res.status(200).json({
             message: "Tasks fetched successfully",
@@ -111,7 +114,6 @@ const getProjectTasks = async (req, res) => {
         });
     }
 };
-
 
 
 // getSingleTask
@@ -163,7 +165,12 @@ const getSingleTask = async (req, res) => {
 const updateTask = async (req, res) => {
     try {
         const { taskId } = req.params;
-        const { title, description, assignedTo, dueDate } = req.body;
+        const {
+            title,
+            description,
+            assignedTo,
+            dueDate
+        } = req.body;
 
         const task = await Task.findById(taskId);
 
@@ -194,8 +201,10 @@ const updateTask = async (req, res) => {
         }
 
         if (assignedTo) {
+
             const isMember = project.members.some(
-                (memberId) => memberId.toString() === assignedTo
+                (memberId) =>
+                    memberId.toString() === assignedTo.toString()
             );
 
             if (!isMember) {
@@ -251,6 +260,18 @@ const updateTaskStatus = async (req, res) => {
         if (task.assignedTo.toString() !== req.user.id) {
             return res.status(403).json({
                 message: "Only assigned member can update task status"
+            });
+        }
+
+        // Check project membership
+        const project = await Project.findOne({
+            _id: task.project,
+            members: req.user.id
+        });
+
+        if (!project) {
+            return res.status(403).json({
+                message: "You are not a member of this project"
             });
         }
 

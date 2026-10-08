@@ -1,6 +1,6 @@
 import Message from "../models/Message.js";
 import User from "../models/UserTemp.js";
-
+import Project from "../models/Project.js";
 
 
 const sendMessage = async (req, res) => {
@@ -47,6 +47,31 @@ const sendMessage = async (req, res) => {
 const getMessageHistory = async (req, res) => {
     try {
         const { userId } = req.params;
+
+        // Check if both users belong to a common project
+        const project = await Project.findOne({
+            $or: [
+                {
+                    owner: req.user.id,
+                    members: userId
+                },
+                {
+                    owner: userId,
+                    members: req.user.id
+                },
+                {
+                    members: {
+                        $all: [req.user.id, userId]
+                    }
+                }
+            ]
+        });
+
+        if (!project) {
+            return res.status(403).json({
+                message: "You cannot access this chat"
+            });
+        }
 
         const messages = await Message.find({
             $or: [
