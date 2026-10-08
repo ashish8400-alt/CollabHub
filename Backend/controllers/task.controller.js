@@ -113,7 +113,8 @@ const getProjectTasks = async (req, res) => {
 };
 
 
-//getSingleTasks
+
+// getSingleTask
 const getSingleTask = async (req, res) => {
     try {
         const { taskId } = req.params;
@@ -129,10 +130,13 @@ const getSingleTask = async (req, res) => {
             });
         }
 
-        // Check user project ka member hai
+        // Check user is project owner OR project member
         const project = await Project.findOne({
             _id: task.project._id,
-            members: req.user.id
+            $or: [
+                { owner: req.user.id },
+                { members: req.user.id }
+            ]
         });
 
         if (!project) {
