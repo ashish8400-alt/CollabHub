@@ -6,7 +6,7 @@ const createProject = async (req, res) => {
     try {
         const { name, description } = req.body;
 
-        if (!name) {
+        if (!name || !name.trim()) {
             return res.status(400).json({
                 message: "Project name is required"
             });
@@ -37,7 +37,11 @@ const createProject = async (req, res) => {
 const getMyProjects = async (req, res) => {
     try {
         const projects = await Project.find({
-            members: req.user.id
+            $or: [ 
+                { owner: req.user.id },
+                 { members: req.user.id }
+                 ]
+            
         })
         .populate("owner", "name email")
         .populate("members", "name email");
@@ -63,7 +67,10 @@ const getSingleProject = async (req, res) => {
 
         const project = await Project.findOne({
             _id: projectId,
-            members: req.user.id
+           $or: [
+             { owner: req.user.id }, 
+             { members: req.user.id }
+             ]
         })
         .populate("owner", "name email")
         .populate("members", "name email");
@@ -89,11 +96,13 @@ const getSingleProject = async (req, res) => {
 
 
 //updateProject by only owner
+
 const updateProject = async (req, res) => {
     try {
         const { projectId } = req.params;
         const { name, description } = req.body;
 
+        // Find project and check owner
         const project = await Project.findOne({
             _id: projectId,
             owner: req.user.id
@@ -105,10 +114,18 @@ const updateProject = async (req, res) => {
             });
         }
 
-        if (name) {
-            project.name = name;
+        // Validate project name
+        if (name !== undefined) {
+            if (typeof name !== "string" || !name.trim()) {
+                return res.status(400).json({
+                    message: "Project name cannot be empty"
+                });
+            }
+
+            project.name = name.trim();
         }
 
+        // Update description
         if (description !== undefined) {
             project.description = description;
         }
@@ -127,6 +144,7 @@ const updateProject = async (req, res) => {
         });
     }
 };
+
 
 
 
