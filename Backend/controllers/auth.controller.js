@@ -217,23 +217,28 @@ const verifyLoginOtp = async (req, res) => {
         }
 
         // 3. Check OTP
-        if (user.loginOtp !== otp) {
-            return res.status(400).json({
-                message: "Invalid OTP"
-            });
-        }
+       
+// 3. Check OTP and expiry
+if (!user.loginOtp || user.loginOtp !== otp || !user.loginOtpExpiry || user.loginOtpExpiry <= new Date() )
+ {
+    return res.status(400).json({
+        message: "Invalid or expired OTP"
+    });
+}
 
-        // 4. Check OTP expiry
-        if (user.loginOtpExpiry < new Date()) {
-            return res.status(400).json({
-                message: "OTP expired"
-            });
-        }
+
+
+        // // 4. Check OTP expiry
+        // if (user.loginOtpExpiry < new Date()) {
+        //     return res.status(400).json({
+        //         message: "OTP expired"
+        //     });
+        // }
 
         // 5. Generate JWT
         const token = jwt.sign(
             {
-                id: user._id,
+                id: user._id.toString(),
                 role: user.role
             },
             process.env.JWT_SECRET,
