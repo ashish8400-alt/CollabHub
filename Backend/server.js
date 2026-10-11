@@ -1,3 +1,6 @@
+import "dotenv/config";
+
+
 import express from "express";
 
 import { createServer } from "http";
@@ -29,6 +32,7 @@ import taskRoutes from "./routes/task.routes.js";
 import messageRoutes from "./routes/message.routes.js";
 import notificationRoutes from "./routes/notification.routes.js";
 import commentRoutes from "./routes/comment.routes.js";
+import profileRoutes from "./routes/profile.routes.js";
 
 
 import startDeadlineJob from "./jobs/deadline.job.js";
@@ -255,6 +259,8 @@ app.use("/api/messages", messageRoutes );
 app.use("/api/notifications", notificationRoutes );
 
 app.use("/api/comments", commentRoutes );
+
+app.use("/api/profile", profileRoutes);
 
 
 // ===============================
