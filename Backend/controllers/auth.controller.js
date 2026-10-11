@@ -3,23 +3,28 @@ import User from "../models/UserTemp.js";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import sendEmail from "../utils/sendEmail.js";
+import PendingRegistration from "../models/PendingRegistration.js";
 
 
 // Register User
 const registerUser = async (req, res) => {
-
     try {
         const { name, email, password } = req.body;
 
-        // 1. Check all fields
+        // 1. Check required fields
         if (!name || !email || !password) {
             return res.status(400).json({
                 message: "All fields are required"
             });
         }
 
-        // 2. Check user already exists
-        const existingUser = await User.findOne({ email });
+        // 2. Normalize input
+        const normalizedEmail = email.trim().toLowerCase();
+
+        // 3. Check existing user
+        const existingUser = await User.findOne({
+            email: normalizedEmail
+        });
 
         if (existingUser) {
             return res.status(400).json({
@@ -27,37 +32,46 @@ const registerUser = async (req, res) => {
             });
         }
 
-        // 3. Hash password
+        // 4. Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // 4. Create registration OTP
-        const registerOtp = crypto.randomInt(100000, 1000000).toString();
+        // 5. Generate OTP
+        const registerOtp = crypto
+            .randomInt(100000, 1000000)
+            .toString();
 
-        // 5. Create user
-        const user = await User.create({
-            name,
-            email,
-            password: hashedPassword,
-            registerOtp,
-            registerOtpExpiry: new Date(Date.now() + 5 * 60 * 1000)
-        });
+        // 6. Save temporary registration
+        await PendingRegistration.findOneAndUpdate(
+            { email: normalizedEmail },
+            {
+                name: name.trim(),
+                email: normalizedEmail,
+                password: hashedPassword,
+                otp: registerOtp,
+                otpExpiry: new Date(Date.now() + 5 * 60 * 1000)
+            },
+            {
+                upsert: true,
+                new: true,
+                runValidators: true,
+                setDefaultsOnInsert: true
+            }
+        );
 
-
-        // console.log("Registration OTP:", registerOtp);
-        // 6. Send OTP email
+        // 7. Send OTP email
         await sendEmail(
-            user.email,
+            normalizedEmail,
             "Your CollabHub Registration OTP",
             `Your registration OTP is: ${registerOtp}. This OTP is valid for 5 minutes.`
         );
 
-        // 7. Response
-        res.status(201).json({
+        // 8. Response
+        return res.status(201).json({
             message: "OTP sent to your email"
         });
 
     } catch (error) {
-        res.status(500).json({
+        return res.status(500).json({
             message: "Registration failed",
             error: error.message
         });
@@ -276,6 +290,7 @@ if (!user.loginOtp || user.loginOtp !== otp || !user.loginOtpExpiry || user.logi
 
 
 //verifyOtobyRegister
+
 const verifyRegisterOtp = async (req, res) => {
     try {
         const { email, otp } = req.body;
@@ -287,53 +302,75 @@ const verifyRegisterOtp = async (req, res) => {
             });
         }
 
-        // 2. Find user
-        const user = await User.findOne({ email });
+        // 2. Normalize email
+        const normalizedEmail = email.trim().toLowerCase();
 
-        if (!user) {
+        // 3. Find pending registration
+        const pendingUser = await PendingRegistration.findOne({
+            email: normalizedEmail
+        });
+
+        if (!pendingUser) {
             return res.status(404).json({
-                message: "User not found"
+                message: "Registration not found. Please register again."
             });
         }
 
-//         console.log("OTP from Postman:", otp);
-// console.log("OTP from DB:", user.registerOtp);
-
-        // 3. Check OTP expiry
-        if (user.registerOtpExpiry < new Date()) {
+        // 4. Check OTP and expiry
+        if (
+            !pendingUser.otp ||
+            pendingUser.otp !== otp ||
+            !pendingUser.otpExpiry ||
+            pendingUser.otpExpiry <= new Date()
+        ) {
             return res.status(400).json({
-                message: "OTP expired"
+                message: "Invalid or expired OTP"
             });
         }
 
-        // 4. Check OTP
-        if (user.registerOtp !== otp) {
-            return res.status(400).json({
-                message: "Invalid OTP"
+        // 5. Check if user already exists
+        const existingUser = await User.findOne({
+            email: normalizedEmail
+        });
+
+        if (existingUser) {
+            await PendingRegistration.deleteOne({
+                _id: pendingUser._id
+            });
+
+            return res.status(409).json({
+                message: "User already exists. Please login."
             });
         }
 
-        // 5. Verify user
-        user.isVerified = true;
+        // 6. Create actual user after OTP verification
+        await User.create({
+            name: pendingUser.name,
+            email: pendingUser.email,
+            password: pendingUser.password,
+            isVerified: true,
+            registerOtp: "",
+            registerOtpExpiry: null
+        });
 
-        // 6. Clear OTP
-        user.registerOtp = "";
-        user.registerOtpExpiry = null;
+        // 7. Delete temporary registration
+        await PendingRegistration.deleteOne({
+            _id: pendingUser._id
+        });
 
-        await user.save();
-
-        // 7. Response
-        res.status(200).json({
+        // 8. Response
+        return res.status(201).json({
             message: "Registration successful. Email verified."
         });
 
     } catch (error) {
-        res.status(500).json({
+        return res.status(500).json({
             message: "OTP verification failed",
             error: error.message
         });
     }
 };
+
 
 
 //forgotPassword 
