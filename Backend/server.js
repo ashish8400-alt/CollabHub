@@ -9,10 +9,19 @@ import jwt from "jsonwebtoken";
 import cors from "cors";
 import connectDB from "./config/db.js";
 
+
+//middleware
+import authMiddleware from "./middleware/auth.middleware.js";
+import adminMiddleware from "./middleware/admin.middleware.js";
+
+
+//models
 import Message from "./models/Message.js";
 import Notification from "./models/Notification.js";
 import Project from "./models/Project.js";
 
+
+//routes
 import authRoutes from "./routes/auth.routes.js";
 import projectRoutes from "./routes/project.routes.js";
 import memberRoutes from "./routes/member.routes.js";
@@ -20,6 +29,8 @@ import taskRoutes from "./routes/task.routes.js";
 import messageRoutes from "./routes/message.routes.js";
 import notificationRoutes from "./routes/notification.routes.js";
 import commentRoutes from "./routes/comment.routes.js";
+
+
 import startDeadlineJob from "./jobs/deadline.job.js";
 
 
@@ -31,6 +42,12 @@ connectDB();
 const app = express();
 
 const server = createServer(app);
+
+
+app.get( "/api/admin/test", authMiddleware, adminMiddleware, (req, res) => {
+        res.status(200).json({ message: "Welcome Admin!", user: req.user });
+    }
+);
 
 
 const io = new Server(server, {
