@@ -93,6 +93,9 @@ return ( <div className="w-64 min-h-screen bg-gray-950 p-5 text-white">
     MAIN MENU
   </p>
 
+
+  
+    {/* 🏠 Dashboard */}
   <Link to="/" className="mb-2 block rounded-lg bg-violet-600 p-3">
     🏠 Dashboard
   </Link>
@@ -101,17 +104,40 @@ return ( <div className="w-64 min-h-screen bg-gray-950 p-5 text-white">
     📁 Projects
   </Link>
 
-  <div className="mb-2 rounded-lg p-3 hover:bg-gray-800">
+
+ {/* ✅ My Tasks */}
+
+  {/* <div className="mb-2 rounded-lg p-3 hover:bg-gray-800">
     ✅ My Tasks
-  </div>
+  </div> */}
 
-  <div className="mb-2 rounded-lg p-3 hover:bg-gray-800">
+  <Link to="/tasks" className="mb-2 block rounded-lg p-3 hover:bg-gray-800" > 
+  ✅ My Tasks 
+  </Link>
+
+
+
+
+ {/* 💬 Messages */}
+  {/* <div className="mb-2 rounded-lg p-3 hover:bg-gray-800">
     💬 Messages
-  </div>
+  </div> */}
 
-  <div className="mb-2 rounded-lg p-3 hover:bg-gray-800">
+  <Link
+  to="/messages"
+  className="mb-2 block rounded-lg p-3 hover:bg-gray-800" >
+  💬 Messages
+</Link>
+
+
+{/* 🔔 Notifications */}
+  {/* <div className="mb-2 rounded-lg p-3 hover:bg-gray-800">
     🔔 Notifications
-  </div>
+  </div> */}
+
+  <Link to="/notifications" className="mb-2 block rounded-lg p-3 hover:bg-gray-800" > 
+  🔔 Notifications
+   </Link>
 
   <div className="mt-10 border-t border-gray-800 pt-5">
 
