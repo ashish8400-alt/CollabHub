@@ -197,6 +197,19 @@ return ( <div className="w-64 min-h-screen bg-gray-950 p-5 text-white">
 </NavLink>
 
 
+<NavLink
+  to="/calendar"
+  className={({ isActive }) =>
+    `mb-2 block rounded-lg p-3 ${
+      isActive
+        ? "bg-violet-600 text-white"
+        : "text-gray-300 hover:bg-gray-800"
+    }`
+  }
+>
+  📅 Calendar
+</NavLink>
+
 {/* 🔔 Notifications */}
   {/* <div className="mb-2 rounded-lg p-3 hover:bg-gray-800">
     🔔 Notifications

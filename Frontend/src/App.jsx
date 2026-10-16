@@ -28,6 +28,8 @@ return ( <BrowserRouter> <Routes>
 <Route path="/settings" element={<DashboardLayout />} />
 <Route path="/profile" element={<DashboardLayout />} />
 <Route path="/team" element={<DashboardLayout />} />
+<Route path="/calendar" element={<DashboardLayout />} />
+<Route path="/help" element={<DashboardLayout />} />
 </Routes> 
 </BrowserRouter>
 );
