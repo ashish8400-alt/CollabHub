@@ -76,6 +76,7 @@
 
 
 import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 function Sidebar() {
 return ( <div className="w-64 min-h-screen bg-gray-950 p-5 text-white">
@@ -96,13 +97,39 @@ return ( <div className="w-64 min-h-screen bg-gray-950 p-5 text-white">
 
   
     {/* 🏠 Dashboard */}
-  <Link to="/" className="mb-2 block rounded-lg bg-violet-600 p-3">
+  {/* <Link to="/" className="mb-2 block rounded-lg bg-violet-600 p-3">
     🏠 Dashboard
-  </Link>
+  </Link> */}
 
-  <Link to="/projects" className="mb-2 block rounded-lg p-3 hover:bg-gray-800">
+  <NavLink
+  to="/"
+  className={({ isActive }) =>
+    `mb-2 block rounded-lg p-3 ${
+      isActive
+        ? "bg-violet-600 text-white"
+        : "text-gray-300 hover:bg-gray-800"
+    }`
+  }
+>
+  🏠 Dashboard
+</NavLink>
+
+  {/* <Link to="/projects" className="mb-2 block rounded-lg p-3 hover:bg-gray-800">
     📁 Projects
-  </Link>
+  </Link> */}
+
+  <NavLink
+  to="/projects"
+  className={({ isActive }) =>
+    `mb-2 block rounded-lg p-3 ${
+      isActive
+        ? "bg-violet-600 text-white"
+        : "text-gray-300 hover:bg-gray-800"
+    }`
+  }
+>
+  📁 Projects
+</NavLink>
 
 
  {/* ✅ My Tasks */}
@@ -111,9 +138,36 @@ return ( <div className="w-64 min-h-screen bg-gray-950 p-5 text-white">
     ✅ My Tasks
   </div> */}
 
-  <Link to="/tasks" className="mb-2 block rounded-lg p-3 hover:bg-gray-800" > 
+  {/* <Link to="/tasks" className="mb-2 block rounded-lg p-3 hover:bg-gray-800" > 
   ✅ My Tasks 
-  </Link>
+  </Link> */}
+
+  <NavLink
+  to="/tasks"
+  className={({ isActive }) =>
+    `mb-2 block rounded-lg p-3 ${
+      isActive
+        ? "bg-violet-600 text-white"
+        : "text-gray-300 hover:bg-gray-800"
+    }`
+  }
+>
+  ✅ My Tasks
+</NavLink>
+
+
+<NavLink
+  to="/team"
+  className={({ isActive }) =>
+    `mb-2 block rounded-lg p-3 ${
+      isActive
+        ? "bg-violet-600 text-white"
+        : "text-gray-300 hover:bg-gray-800"
+    }`
+  }
+>
+  👥 Team Members
+</NavLink>
 
 
 
@@ -123,11 +177,24 @@ return ( <div className="w-64 min-h-screen bg-gray-950 p-5 text-white">
     💬 Messages
   </div> */}
 
-  <Link
+  {/* <Link
   to="/messages"
   className="mb-2 block rounded-lg p-3 hover:bg-gray-800" >
   💬 Messages
-</Link>
+</Link> */}
+
+<NavLink
+  to="/messages"
+  className={({ isActive }) =>
+    `mb-2 block rounded-lg p-3 ${
+      isActive
+        ? "bg-violet-600 text-white"
+        : "text-gray-300 hover:bg-gray-800"
+    }`
+  }
+>
+  💬 Messages
+</NavLink>
 
 
 {/* 🔔 Notifications */}
@@ -135,9 +202,23 @@ return ( <div className="w-64 min-h-screen bg-gray-950 p-5 text-white">
     🔔 Notifications
   </div> */}
 
-  <Link to="/notifications" className="mb-2 block rounded-lg p-3 hover:bg-gray-800" > 
+  {/* <Link to="/notifications" className="mb-2 block rounded-lg p-3 hover:bg-gray-800" > 
   🔔 Notifications
-   </Link>
+   </Link> */}
+
+
+   <NavLink
+  to="/notifications"
+  className={({ isActive }) =>
+    `mb-2 block rounded-lg p-3 ${
+      isActive
+        ? "bg-violet-600 text-white"
+        : "text-gray-300 hover:bg-gray-800"
+    }`
+  }
+>
+  🔔 Notifications
+</NavLink>
 
   <div className="mt-10 border-t border-gray-800 pt-5">
 
@@ -145,9 +226,31 @@ return ( <div className="w-64 min-h-screen bg-gray-950 p-5 text-white">
       SUPPORT
     </p>
 
-    <div className="rounded-lg p-3 hover:bg-gray-800">
+
+{/* ⚙️ Settings */}
+    {/* <div className="rounded-lg p-3 hover:bg-gray-800">
       ⚙️ Settings
-    </div>
+    </div> */}
+
+    {/* <Link
+  to="/settings"
+  className="block rounded-lg p-3 hover:bg-gray-800"
+>
+  ⚙️ Settings
+</Link> */}
+
+<NavLink
+  to="/settings"
+  className={({ isActive }) =>
+    `mb-2 block rounded-lg p-3 ${
+      isActive
+        ? "bg-violet-600 text-white"
+        : "text-gray-300 hover:bg-gray-800"
+    }`
+  }
+>
+  ⚙️ Settings
+</NavLink>
 
     <div className="rounded-lg p-3 hover:bg-gray-800">
       ❓ Help
@@ -157,9 +260,31 @@ return ( <div className="w-64 min-h-screen bg-gray-950 p-5 text-white">
 
   <div className="mt-10 rounded-xl bg-gray-900 p-4">
 
+
+
     <p className="font-bold">
       My Account
     </p>
+
+    {/* <Link
+  to="/profile"
+  className="block rounded-lg p-3 hover:bg-gray-800"
+>
+  👤 My Profile
+</Link> */}
+
+<NavLink
+  to="/profile"
+  className={({ isActive }) =>
+    `mb-2 block rounded-lg p-3 ${
+      isActive
+        ? "bg-violet-600 text-white"
+        : "text-gray-300 hover:bg-gray-800"
+    }`
+  }
+>
+  👤 My Profile
+</NavLink>
 
     <p className="mt-2 text-sm text-gray-400">
       Welcome to CollabHub!

@@ -25,6 +25,9 @@ return ( <BrowserRouter> <Routes>
 <Route path="/tasks" element={<DashboardLayout />} /> 
 <Route path="/messages" element={<DashboardLayout />} />
 <Route path="/notifications" element={<DashboardLayout />} />
+<Route path="/settings" element={<DashboardLayout />} />
+<Route path="/profile" element={<DashboardLayout />} />
+<Route path="/team" element={<DashboardLayout />} />
 </Routes> 
 </BrowserRouter>
 );

@@ -39,7 +39,9 @@ import Projects from "../pages/Projects";
 import Tasks from "../pages/Tasks";
 import Messages from "../pages/Messages";
 import Notifications from "../pages/Notifications";
-
+import Settings from "../pages/Settings";
+import Profile from "../pages/Profile";
+import TeamMembers from "../pages/TeamMembers";
 
 
 function DashboardLayout() {
@@ -58,17 +60,44 @@ const location = useLocation();
 
 let page;
 
-if (location.pathname === "/projects") {
-page = <Projects />;
+// if (location.pathname === "/projects") {
+// page = <Projects />;
+// } else if (location.pathname === "/tasks") {
+// page = <Tasks />;
+// } else if (location.pathname === "/messages") {
+// page = <Messages />;
+// } else if (location.pathname === "/notifications") {
+// page = <Notifications />;
+// } else if (location.pathname === "/settings") {
+// page = <Settings />;
+// } else if (location.pathname === "/profile") {
+// page = <Profile />;
+// } else if (location.pathname === "/team-members") {
+// page = <TeamMembers />;
+// }
+
+// else {
+// page = <Dashboard />;
+// }
+
+
+
+if (location.pathname === "/team") {
+  page = <TeamMembers />;
+} else if (location.pathname === "/projects") {
+  page = <Projects />;
 } else if (location.pathname === "/tasks") {
-page = <Tasks />;
+  page = <Tasks />;
 } else if (location.pathname === "/messages") {
-page = <Messages />;
+  page = <Messages />;
 } else if (location.pathname === "/notifications") {
-page = <Notifications />;
-}
-else {
-page = <Dashboard />;
+  page = <Notifications />;
+} else if (location.pathname === "/settings") {
+  page = <Settings />;
+} else if (location.pathname === "/profile") {
+  page = <Profile />;
+} else {
+  page = <Dashboard />;
 }
 
 
