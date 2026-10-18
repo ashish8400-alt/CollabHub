@@ -1,5 +1,6 @@
 import { useState } from "react";
 import ProjectDetails from "../components/ProjectDetails";
+import ProjectSummary from "../components/ProjectSummary";
 
 function Projects() {
   const [showForm, setShowForm] = useState(false);
@@ -63,8 +64,8 @@ function Projects() {
     setShowForm(false);
   }
 
-//Edit Project
-  function handleEditProject(project) {
+// Edit Project
+function handleEditProject(project) {
   const newName = window.prompt(
     "Enter project name:",
     project.name
@@ -83,6 +84,22 @@ function Projects() {
     return;
   }
 
+  const newStatus = window.prompt(
+    "Enter status: Active, In Progress, Planning",
+    project.status
+  );
+
+  if (newStatus === null) {
+    return;
+  }
+
+  const validStatuses = ["Active", "In Progress", "Planning"];
+
+  if (!validStatuses.includes(newStatus.trim())) {
+    alert("Please enter a valid status.");
+    return;
+  }
+
   setProjects(
     projects.map((item) =>
       item.id === project.id
@@ -90,6 +107,7 @@ function Projects() {
             ...item,
             name: newName.trim(),
             description: newDescription.trim(),
+            status: newStatus.trim(),
           }
         : item
     )
@@ -126,9 +144,7 @@ function Projects() {
   return matchesSearch && matchesStatus;
 });
 
-
-
-
+// Sort Projects
 const sortedProjects = [...filteredProjects].sort((a, b) => {
   if (sortBy === "name") {
     return a.name.localeCompare(b.name);
@@ -142,8 +158,12 @@ const sortedProjects = [...filteredProjects].sort((a, b) => {
     return a.progress - b.progress;
   }
 
+
+  
   return 0;
 });
+
+
 
   return (
     <div className="min-h-screen bg-gray-900 p-8 text-white">
@@ -165,6 +185,8 @@ const sortedProjects = [...filteredProjects].sort((a, b) => {
           {showForm ? "Cancel" : "+ Create Project"}
         </button>
       </div>
+
+<ProjectSummary projects={projects} />
 
       {/* Create Project Form */}
       {showForm && (
