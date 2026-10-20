@@ -4,6 +4,8 @@ import TaskSearch from "../components/TaskSearch";
 import TaskFilter from "../components/TaskFilter";
 import TaskSort from "../components/TaskSort";
 import TaskSummary from "../components/TaskSummary";
+import TaskClearFilters from "../components/TaskClearFilters";
+import TaskPriorityFilter from "../components/TaskPriorityFilter";
 
 
 function Tasks() {
@@ -40,6 +42,7 @@ const [showForm, setShowForm] = useState(false);
 const [searchTerm, setSearchTerm] = useState("");
 const [statusFilter, setStatusFilter] = useState("All");
 const [sortBy, setSortBy] = useState("default");
+const [priorityFilter, setPriorityFilter] = useState("All");
 
 
 
@@ -140,8 +143,12 @@ const filteredTasks = tasks.filter((task) => {
   const matchesStatus =
     statusFilter === "All" || task.status === statusFilter;
 
-  return matchesSearch && matchesStatus;
+  const matchesPriority =
+    priorityFilter === "All" || task.priority === priorityFilter;
+
+  return matchesSearch && matchesStatus && matchesPriority;
 });
+
 
 const sortedTasks = [...filteredTasks].sort((a, b) => {
   if (sortBy === "due-soon") {
@@ -211,9 +218,25 @@ return ( <div className="min-h-screen bg-gray-900 p-8 text-white">
   onStatusChange={setStatusFilter}
 />
 
+
+<TaskPriorityFilter
+  priorityFilter={priorityFilter}
+  onPriorityChange={setPriorityFilter}
+/>
+
+
 <TaskSort
   sortBy={sortBy}
   onSortChange={setSortBy}
+/>
+
+<TaskClearFilters
+  onClear={() => {
+    setSearchTerm("");
+    setStatusFilter("All");
+    setSortBy("default");
+    setPriorityFilter("All");
+  }}
 />
 
   {/* Task Cards */}
