@@ -208,6 +208,8 @@ return ( <div className="min-h-screen bg-gray-900 p-8 text-white">
   />
 )}
 
+
+
 <TaskSearch
   searchTerm={searchTerm}
   onSearchChange={setSearchTerm}
@@ -238,6 +240,8 @@ return ( <div className="min-h-screen bg-gray-900 p-8 text-white">
     setPriorityFilter("All");
   }}
 />
+
+
 
   {/* Task Cards */}
 {sortedTasks.map((task) => (

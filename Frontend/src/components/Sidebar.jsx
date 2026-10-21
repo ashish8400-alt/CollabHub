@@ -174,7 +174,7 @@ return ( <div className="w-64 min-h-screen bg-gray-950 p-5 text-white">
 
  {/* 💬 Messages */}
   {/* <div className="mb-2 rounded-lg p-3 hover:bg-gray-800">
-    💬 Messages
+    💬 Message
   </div> */}
 
   {/* <Link
