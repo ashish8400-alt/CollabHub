@@ -115,7 +115,7 @@ return ( <div className="w-64 min-h-screen bg-gray-950 p-5 text-white">
 </NavLink>
 
   {/* <Link to="/projects" className="mb-2 block rounded-lg p-3 hover:bg-gray-800">
-    📁 Projects
+    📁 Project
   </Link> */}
 
   <NavLink
