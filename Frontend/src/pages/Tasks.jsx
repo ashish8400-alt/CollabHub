@@ -6,6 +6,7 @@ import TaskSort from "../components/TaskSort";
 import TaskSummary from "../components/TaskSummary";
 import TaskClearFilters from "../components/TaskClearFilters";
 import TaskPriorityFilter from "../components/TaskPriorityFilter";
+import TaskDetails from "../components/TaskDetails";
 
 
 function Tasks() {
@@ -43,6 +44,7 @@ const [searchTerm, setSearchTerm] = useState("");
 const [statusFilter, setStatusFilter] = useState("All");
 const [sortBy, setSortBy] = useState("default");
 const [priorityFilter, setPriorityFilter] = useState("All");
+const [selectedTask, setSelectedTask] = useState(null);
 
 
 
@@ -319,6 +321,13 @@ return ( <div className="min-h-screen bg-gray-900 p-8 text-white">
 </button>
 
 
+<button
+  onClick={() => setSelectedTask(task)}
+  className="rounded-lg bg-violet-600 px-3 py-2 text-sm text-white hover:bg-violet-700"
+>
+  View Details
+</button>
+
 
 <button
   onClick={() => handleDeleteTask(task.id)}
@@ -332,6 +341,16 @@ return ( <div className="min-h-screen bg-gray-900 p-8 text-white">
   </div>
 ))}
 
+
+{/* Task Details Popup */}
+{selectedTask && (
+  <TaskDetails
+    task={selectedTask}
+    onClose={() => setSelectedTask(null)}
+  />
+)}
+
+  
 </div>
 
 );
