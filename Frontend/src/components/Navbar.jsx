@@ -32,7 +32,7 @@ function Navbar() {
   return (
     <div className="flex items-center justify-between border-b border-gray-800 bg-gray-950 px-8 py-4 text-white">
 
-      {/* Left Side */}
+      {/* Left Side of Navbar */}
       <div>
         <h2 className="text-2xl font-bold">{title}</h2>
 
