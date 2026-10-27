@@ -2,6 +2,8 @@ import { useState } from "react";
 import MessageInput from "../components/MessageInput";
 import TeamMemberList from "../components/TeamMemberList";
 import MessageList from "../components/MessageList";
+import MessageSearch from "../components/MessageSearch";
+
 
 function Messages() {
   const members = [
@@ -47,8 +49,14 @@ const [chats, setChats] = useState({
 });
 
 
+const [searchTerm, setSearchTerm] = useState("");
+
 
 const messages = chats[selectedMember.id] || [];
+
+const filteredMessages = messages.filter((message) =>
+  message.text.toLowerCase().includes(searchTerm.toLowerCase())
+);
 
 
 
@@ -64,11 +72,15 @@ function handleSelectMember(member) {
 
 
   function handleSendMessage(message) {
-  const newMessage = {
-    id: Date.now(),
-    text: message,
-    sender: "me",
-  };
+ const newMessage = {
+  id: Date.now(),
+  text: message,
+  sender: "me",
+  time: new Date().toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  }),
+};
 
   setChats((previousChats) => ({
     ...previousChats,
@@ -78,6 +90,8 @@ function handleSelectMember(member) {
     ],
   }));
 }
+
+
 
 function handleDeleteMessage(id) {
   const confirmDelete = window.confirm(
@@ -90,6 +104,19 @@ function handleDeleteMessage(id) {
       [selectedMember.id]: previousChats[selectedMember.id].filter(
         (message) => message.id !== id
       ),
+    }));
+  }
+}
+
+function handleClearChat() {
+  const confirmClear = window.confirm(
+    `Clear chat with ${selectedMember.name}?`
+  );
+
+  if (confirmClear) {
+    setChats((previousChats) => ({
+      ...previousChats,
+      [selectedMember.id]: [],
     }));
   }
 }
@@ -121,20 +148,34 @@ function handleDeleteMessage(id) {
         {/* Chat Section */}
         <div className="rounded-xl border border-gray-700 bg-gray-800 p-5 md:col-span-2">
 
-          <div className="border-b border-gray-700 pb-4">
-            <h2 className="text-xl font-semibold">
-  {selectedMember.name}
-</h2>
+       <div className="flex items-center justify-between border-b border-gray-700 pb-4">
+  <div>
+    <h2 className="text-xl font-semibold">
+      {selectedMember.name}
+    </h2>
 
-            <p className="mt-1 text-sm text-green-400">
-              Team Member
-            </p>
-          </div>
+    <p className="mt-1 text-sm text-green-400">
+      Team Member
+    </p>
+  </div>
+
+  <button
+    onClick={handleClearChat}
+    className="rounded-lg bg-red-600 px-4 py-2 text-sm hover:bg-red-700"
+  >
+    Clear Chat
+  </button>
+</div>
 
           {/* Messages List */}
           {/* Messages List */}
+<MessageSearch
+  searchTerm={searchTerm}
+  onSearchChange={setSearchTerm}
+/>
+
 <MessageList
-  messages={messages}
+  messages={filteredMessages}
   onDeleteMessage={handleDeleteMessage}
 />
 
@@ -146,5 +187,7 @@ function handleDeleteMessage(id) {
     </div>
   );
 }
+
+
 
 export default Messages;

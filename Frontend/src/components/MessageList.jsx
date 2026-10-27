@@ -19,6 +19,10 @@ function MessageList({ messages, onDeleteMessage }) {
           >
             <p>{message.text}</p>
 
+              <p className="mt-2 text-right text-xs text-gray-300">
+  {message.time || ""}
+</p>
+
             {message.sender === "me" && (
               <button
                 onClick={() => onDeleteMessage(message.id)}
