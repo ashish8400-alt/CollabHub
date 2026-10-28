@@ -1,5 +1,56 @@
+import { useState } from "react";
+import AddEventForm from "../components/AddEventForm";
+
 
 function Calendar() {
+  const [showForm, setShowForm] = useState(false);
+
+const [events, setEvents] = useState([
+  {
+    id: 1,
+    title: "Team Meeting",
+    date: "2026-10-17",
+    description: "Project progress discussion",
+    time: "10:00",
+  },
+  {
+    id: 2,
+    title: "Project Deadline",
+    date: "2026-10-20",
+    description: "Complete the website development",
+    time: "17:00",
+  },
+  {
+    id: 3,
+    title: "Design Review",
+    date: "2026-10-25",
+    description: "Review the final UI designs",
+    time: "14:00",
+  },
+]);
+
+
+function handleAddEvent(event) {
+  setEvents((previousEvents) => [
+    ...previousEvents,
+    { ...event, id: Date.now() },
+  ]);
+
+  setShowForm(false);
+}
+
+function handleDeleteEvent(id) {
+  const confirmDelete = window.confirm(
+    "Are you sure you want to delete this event?"
+  );
+
+  if (confirmDelete) {
+    setEvents((previousEvents) =>
+      previousEvents.filter((event) => event.id !== id)
+    );
+  }
+}
+
   return (
     <div className="min-h-screen bg-gray-900 p-6 text-white md:p-8">
 
@@ -113,42 +164,61 @@ function Calendar() {
 
           <h2 className="mb-6 text-xl font-bold">Upcoming Events</h2>
 
-          <div className="mb-5 rounded-xl border-l-4 border-violet-500 bg-gray-900 p-4">
-            <p className="text-sm text-violet-400">October 17, 2026</p>
-            <h3 className="mt-2 font-semibold">Team Meeting</h3>
-            <p className="mt-1 text-sm text-gray-400">
-              Project progress discussion
-            </p>
-            <p className="mt-3 text-sm text-gray-300">
-              🕒 10:00 AM
-            </p>
-          </div>
+          {showForm && (
+  <AddEventForm
+    onAddEvent={handleAddEvent}
+    onCancel={() => setShowForm(false)}
+  />
+)}
 
-          <div className="mb-5 rounded-xl border-l-4 border-blue-500 bg-gray-900 p-4">
-            <p className="text-sm text-blue-400">October 20, 2026</p>
-            <h3 className="mt-2 font-semibold">Project Deadline</h3>
-            <p className="mt-1 text-sm text-gray-400">
-              Complete the website development
-            </p>
-            <p className="mt-3 text-sm text-gray-300">
-              🕒 05:00 PM
-            </p>
-          </div>
+       {events.map((event) => (
+  <div
+    key={event.id}
+    className="mb-5 rounded-xl border-l-4 border-violet-500 bg-gray-900 p-4"
+  >
+    <p className="text-sm text-violet-400">
+      {new Date(event.date + "T00:00:00").toLocaleDateString(
+        "en-US",
+        {
+          month: "long",
+          day: "numeric",
+          year: "numeric",
+        }
+      )}
+    </p>
 
-          <div className="rounded-xl border-l-4 border-green-500 bg-gray-900 p-4">
-            <p className="text-sm text-green-400">October 25, 2026</p>
-            <h3 className="mt-2 font-semibold">Design Review</h3>
-            <p className="mt-1 text-sm text-gray-400">
-              Review the final UI designs
-            </p>
-            <p className="mt-3 text-sm text-gray-300">
-              🕒 02:00 PM
-            </p>
-          </div>
+    <h3 className="mt-2 font-semibold">
+      {event.title}
+    </h3>
 
-          <button className="mt-6 w-full rounded-xl bg-violet-600 py-3 font-semibold hover:bg-violet-700">
-            + Add Event
-          </button>
+    <p className="mt-1 text-sm text-gray-400">
+      {event.description || "No description provided."}
+    </p>
+
+    <p className="mt-3 text-sm text-gray-300">
+      🕒 {event.time}
+    </p>
+
+    {/* Delete button - card ke bilkul last mein */}
+    <button
+      onClick={() => handleDeleteEvent(event.id)}
+      className="mt-4 w-full rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold hover:bg-red-700"
+    >
+      Delete Event
+    </button>
+  </div>
+))}
+
+{events.length === 0 && (
+  <p className="text-gray-400">No upcoming events.</p>
+)}
+
+        <button
+  onClick={() => setShowForm(!showForm)}
+  className="mt-6 w-full rounded-xl bg-violet-600 py-3 font-semibold hover:bg-violet-700"
+>
+  {showForm ? "Cancel" : "+ Add Event"}
+</button>
 
         </div>
       </div>

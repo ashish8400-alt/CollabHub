@@ -1,6 +1,23 @@
+import { useState } from "react";
+
+
 
 function Profile() {
+
+
+  const [fullName, setFullName] = useState("Ashish");
+const [email, setEmail] = useState("ashish@example.com");
+const [about, setAbout] = useState("");
+const [saved, setSaved] = useState(false);
+
+function handleSaveProfile() {
+  setSaved(true);
+}
+
+
+
   return (
+    
     <div className="p-8 text-white">
       <h1 className="mb-2 text-3xl font-bold">My Profile</h1>
 
@@ -16,7 +33,7 @@ function Profile() {
           </div>
 
           <div>
-            <h2 className="text-xl font-bold">Ashish</h2>
+            <h2 className="text-xl font-bold">{fullName || "Ashish"}</h2>
             <p className="text-gray-400">CollabHub Member</p>
           </div>
         </div>
@@ -28,7 +45,11 @@ function Profile() {
 
           <input
             type="text"
-            defaultValue="Ashish"
+          value={fullName}
+          onChange={(e) => {
+              setFullName(e.target.value);
+         setSaved(false);
+}}
             className="w-full rounded-lg border border-gray-700 bg-gray-900 p-3 outline-none focus:border-violet-500"
           />
         </div>
@@ -40,7 +61,11 @@ function Profile() {
 
           <input
             type="email"
-            defaultValue="ashish@example.com"
+           value={email}
+onChange={(e) => {
+  setEmail(e.target.value);
+  setSaved(false);
+}}
             className="w-full rounded-lg border border-gray-700 bg-gray-900 p-3 outline-none focus:border-violet-500"
           />
         </div>
@@ -51,15 +76,29 @@ function Profile() {
           </label>
 
           <textarea
+          value={about}
+onChange={(e) => {
+  setAbout(e.target.value);
+  setSaved(false);
+}}
             rows="4"
             placeholder="Write something about yourself..."
             className="w-full rounded-lg border border-gray-700 bg-gray-900 p-3 outline-none focus:border-violet-500"
           />
         </div>
 
-        <button className="rounded-lg bg-violet-600 px-6 py-3 font-semibold hover:bg-violet-700">
-          Save Profile
-        </button>
+      <button
+  onClick={handleSaveProfile}
+  className="rounded-lg bg-violet-600 px-6 py-3 font-semibold hover:bg-violet-700"
+>
+  Save Profile
+</button>
+
+{saved && (
+  <p className="mt-4 text-sm text-green-400">
+    Profile saved successfully!
+  </p>
+)}
       </div>
     </div>
   );
