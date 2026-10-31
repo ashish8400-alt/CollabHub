@@ -1,6 +1,8 @@
 import { useState } from "react";
 import AddEventForm from "../components/AddEventForm";
 import EventSearch from "../components/EventSearch";
+import CalendarGrid from "../components/CalendarGrid";
+import ClearDateFilter from "../components/ClearDateFilter";
 
 function Calendar() {
   const [showForm, setShowForm] = useState(false);
@@ -29,6 +31,8 @@ function Calendar() {
       time: "14:00",
     },
   ]);
+
+  const [selectedDate, setSelectedDate] = useState("");
 
   // Add Event
   function handleAddEvent(event) {
@@ -99,11 +103,17 @@ function Calendar() {
   }
 
   // Search Events
-  const filteredEvents = events.filter((event) =>
-    (event.title + " " + event.description)
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase())
-  );
+ const filteredEvents = events.filter((event) => {
+  const matchesSearch = (event.title + " " + event.description)
+    .toLowerCase()
+    .includes(searchTerm.toLowerCase());
+
+  const matchesDate =
+    selectedDate === "" || event.date === selectedDate;
+
+  return matchesSearch && matchesDate;
+});
+
 
   // Sort Events
   const sortedEvents = [...filteredEvents].sort(
@@ -130,104 +140,14 @@ function Calendar() {
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
 
         {/* Monthly Calendar */}
-        <div className="rounded-2xl border border-gray-700 bg-gray-800 p-6 xl:col-span-2">
+      <CalendarGrid
+  events={events}
+  selectedDate={selectedDate}
+  onDateSelect={setSelectedDate}
+/>
 
-          <div className="mb-6 flex items-center justify-between">
-            <button className="rounded-lg bg-gray-700 px-4 py-2 hover:bg-gray-600">
-              ←
-            </button>
 
-            <h2 className="text-xl font-bold">
-              October 2026
-            </h2>
 
-            <button className="rounded-lg bg-gray-700 px-4 py-2 hover:bg-gray-600">
-              →
-            </button>
-          </div>
-
-          {/* Week Days */}
-          <div className="mb-3 grid grid-cols-7 gap-2 text-center text-sm text-gray-400">
-            <div>Sun</div>
-            <div>Mon</div>
-            <div>Tue</div>
-            <div>Wed</div>
-            <div>Thu</div>
-            <div>Fri</div>
-            <div>Sat</div>
-          </div>
-
-          {/* Calendar Dates */}
-          <div className="grid grid-cols-7 gap-2 text-center">
-
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-
-            <div className="rounded-lg bg-violet-600 p-3 font-bold">
-              1
-            </div>
-
-            <div className="rounded-lg p-3 hover:bg-gray-700">2</div>
-            <div className="rounded-lg p-3 hover:bg-gray-700">3</div>
-
-            <div className="rounded-lg p-3 hover:bg-gray-700">4</div>
-            <div className="rounded-lg p-3 hover:bg-gray-700">5</div>
-            <div className="rounded-lg p-3 hover:bg-gray-700">6</div>
-            <div className="rounded-lg p-3 hover:bg-gray-700">7</div>
-            <div className="rounded-lg p-3 hover:bg-gray-700">8</div>
-            <div className="rounded-lg p-3 hover:bg-gray-700">9</div>
-            <div className="rounded-lg p-3 hover:bg-gray-700">10</div>
-
-            <div className="rounded-lg p-3 hover:bg-gray-700">11</div>
-            <div className="rounded-lg p-3 hover:bg-gray-700">12</div>
-            <div className="rounded-lg p-3 hover:bg-gray-700">13</div>
-            <div className="rounded-lg p-3 hover:bg-gray-700">14</div>
-            <div className="rounded-lg p-3 hover:bg-gray-700">15</div>
-            <div className="rounded-lg p-3 hover:bg-gray-700">16</div>
-
-            <div className="rounded-lg border border-violet-500 p-3">
-              17
-            </div>
-
-            <div className="rounded-lg p-3 hover:bg-gray-700">18</div>
-            <div className="rounded-lg p-3 hover:bg-gray-700">19</div>
-
-            <div className="rounded-lg bg-blue-600 p-3 font-bold">
-              20
-            </div>
-
-            <div className="rounded-lg p-3 hover:bg-gray-700">21</div>
-            <div className="rounded-lg p-3 hover:bg-gray-700">22</div>
-            <div className="rounded-lg p-3 hover:bg-gray-700">23</div>
-            <div className="rounded-lg p-3 hover:bg-gray-700">24</div>
-
-            <div className="rounded-lg p-3 hover:bg-gray-700">25</div>
-            <div className="rounded-lg p-3 hover:bg-gray-700">26</div>
-            <div className="rounded-lg p-3 hover:bg-gray-700">27</div>
-            <div className="rounded-lg p-3 hover:bg-gray-700">28</div>
-            <div className="rounded-lg p-3 hover:bg-gray-700">29</div>
-            <div className="rounded-lg p-3 hover:bg-gray-700">30</div>
-            <div className="rounded-lg p-3 hover:bg-gray-700">31</div>
-
-          </div>
-
-          {/* Legend */}
-          <div className="mt-6 flex flex-wrap gap-5 border-t border-gray-700 pt-5 text-sm text-gray-400">
-
-            <div className="flex items-center gap-2">
-              <span className="h-3 w-3 rounded-full bg-violet-600"></span>
-              Selected Date
-            </div>
-
-            <div className="flex items-center gap-2">
-              <span className="h-3 w-3 rounded-full bg-blue-600"></span>
-              Task Deadline
-            </div>
-
-          </div>
-        </div>
 
         {/* Upcoming Events */}
         <div className="rounded-2xl border border-gray-700 bg-gray-800 p-6">
@@ -238,9 +158,14 @@ function Calendar() {
 
           {/* Event Search */}
           <EventSearch
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-          />
+  searchTerm={searchTerm}
+  onSearchChange={setSearchTerm}
+/>
+
+<ClearDateFilter
+  selectedDate={selectedDate}
+  onClear={() => setSelectedDate("")}
+/>
 
           {/* Add Event Form */}
           {showForm && (
