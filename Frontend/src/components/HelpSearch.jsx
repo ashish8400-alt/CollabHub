@@ -1,4 +1,5 @@
 function HelpSearch({ searchTerm, onSearchChange }) {
+  //Help
   return (
     <input
       type="text"
