@@ -1,5 +1,7 @@
 import { useState } from "react";
 import HelpSearch from "../components/HelpSearch";
+import FAQList from "../components/FAQList";
+import ContactSupport from "../components/ContactSupport";
 
 function Help() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -119,32 +121,10 @@ function Help() {
       </div>
 
       {/* FAQs */}
-      <div className="rounded-2xl border border-gray-700 bg-gray-800 p-6">
-        <h2 className="mb-6 text-xl font-bold">
-          Frequently Asked Questions
-        </h2>
+      
+<FAQList faqs={filteredFaqs} />
 
-        {filteredFaqs.map((faq) => (
-          <div
-            key={faq.id}
-            className="border-b border-gray-700 py-5 last:border-0"
-          >
-            <h3 className="font-semibold">
-              {faq.question}
-            </h3>
-
-            <p className="mt-2 text-sm text-gray-400">
-              {faq.answer}
-            </p>
-          </div>
-        ))}
-
-        {filteredFaqs.length === 0 && (
-  <p className="py-5 text-center text-gray-400">
-    No matching FAQs found.
-  </p>
-)}
-      </div>
+<ContactSupport />
 
     </div>
   );
