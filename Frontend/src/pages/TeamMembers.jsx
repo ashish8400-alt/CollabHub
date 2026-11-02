@@ -1,5 +1,10 @@
 import { useState } from "react";
 import InviteMemberForm from "../components/InviteMemberForm";
+import MemberDetails from "../components/MemberDetails";
+import MemberClearFilters from "../components/MemberClearFilters";
+import MemberStatusFilter from "../components/MemberStatusFilter";
+
+
 
 function TeamMembers() {
   const [showForm, setShowForm] = useState(false);
@@ -35,6 +40,10 @@ function TeamMembers() {
 const [searchTerm, setSearchTerm] = useState("");
 const [roleFilter, setRoleFilter] = useState("All");
 
+const [selectedMember, setSelectedMember] = useState(null);
+
+const [statusFilter, setStatusFilter] = useState("All");
+
   // Add Member
   function handleAddMember(newMember) {
     setMembers((previousMembers) => [
@@ -45,7 +54,71 @@ const [roleFilter, setRoleFilter] = useState("All");
     setShowForm(false);
   }
 
-  const filteredMembers = members.filter((member) => {
+
+  function handleDeleteMember(id) {
+  const confirmDelete = window.confirm(
+    "Are you sure you want to remove this member?"
+  );
+
+  if (confirmDelete) {
+    setMembers((previousMembers) =>
+      previousMembers.filter((member) => member.id !== id)
+    );
+  }
+}
+
+function handleEditMember(member) {
+  const newName = window.prompt("Enter name:", member.name);
+  if (newName === null || newName.trim() === "") return;
+
+  const newEmail = window.prompt("Enter email:", member.email);
+  if (newEmail === null || newEmail.trim() === "") return;
+
+  const newDesignation = window.prompt(
+    "Enter designation:",
+    member.designation
+  );
+  if (newDesignation === null || newDesignation.trim() === "") return;
+
+  const newRole = window.prompt(
+    "Enter role: Admin or Member",
+    member.role
+  );
+
+  if (newRole === null) return;
+
+  if (!["Admin", "Member"].includes(newRole.trim())) {
+    alert("Please enter Admin or Member.");
+    return;
+  }
+
+  setMembers((previousMembers) =>
+    previousMembers.map((item) =>
+      item.id === member.id
+        ? {
+            ...item,
+            name: newName.trim(),
+            email: newEmail.trim(),
+            designation: newDesignation.trim(),
+            role: newRole.trim(),
+          }
+        : item
+    )
+  );
+}
+
+function handleChangeStatus(id, newStatus) {
+  setMembers((previousMembers) =>
+    previousMembers.map((member) =>
+      member.id === id
+        ? { ...member, status: newStatus }
+        : member
+    )
+  );
+}
+
+
+ const filteredMembers = members.filter((member) => {
   const matchesSearch =
     (member.name + " " + member.email)
       .toLowerCase()
@@ -54,7 +127,10 @@ const [roleFilter, setRoleFilter] = useState("All");
   const matchesRole =
     roleFilter === "All" || member.role === roleFilter;
 
-  return matchesSearch && matchesRole;
+  const matchesStatus =
+    statusFilter === "All" || member.status === statusFilter;
+
+  return matchesSearch && matchesRole && matchesStatus;
 });
 
 
@@ -62,6 +138,7 @@ const [roleFilter, setRoleFilter] = useState("All");
   const onlineMembers = members.filter(
     (member) => member.status === "Online"
   ).length;
+
 
   const adminMembers = members.filter(
     (member) => member.role === "Admin"
@@ -97,6 +174,8 @@ const [roleFilter, setRoleFilter] = useState("All");
           onCancel={() => setShowForm(false)}
         />
       )}
+
+
 
       {/* Team Statistics */}
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -152,7 +231,21 @@ const [roleFilter, setRoleFilter] = useState("All");
   <option value="Admin">Admins</option>
   <option value="Member">Members</option>
 </select>
+
+<MemberStatusFilter
+  statusFilter={statusFilter}
+  onStatusChange={setStatusFilter}
+/>
       </div>
+
+ <MemberClearFilters
+  onClear={() => {
+    setSearchTerm("");
+    setRoleFilter("All");
+    setStatusFilter("All");
+  }}
+/>
+
 
       {/* Members Heading */}
       <div className="mb-5">
@@ -194,15 +287,23 @@ const [roleFilter, setRoleFilter] = useState("All");
 
               </div>
 
-              <span
-                className={`rounded-full px-3 py-1 text-xs ${
-                  member.status === "Online"
-                    ? "bg-green-900/50 text-green-400"
-                    : "bg-yellow-900/50 text-yellow-400"
-                }`}
-              >
-                {member.status}
-              </span>
+             <select
+  value={member.status}
+  onChange={(e) =>
+    handleChangeStatus(member.id, e.target.value)
+  }
+  className={`rounded-full px-3 py-2 text-xs outline-none ${
+    member.status === "Online"
+      ? "bg-green-900/50 text-green-400"
+      : member.status === "Away"
+      ? "bg-yellow-900/50 text-yellow-400"
+      : "bg-red-900/50 text-red-400"
+  }`}
+>
+  <option value="Online">Online</option>
+  <option value="Away">Away</option>
+  <option value="Inactive">Inactive</option>
+</select>
 
             </div>
 
@@ -222,9 +323,26 @@ const [roleFilter, setRoleFilter] = useState("All");
                 {member.role}
               </span>
 
-              <button className="rounded-lg border border-gray-600 px-4 py-2 text-sm transition hover:bg-gray-700">
-                View Profile
-              </button>
+             <button
+  onClick={() => setSelectedMember(member)}
+  className="rounded-lg border border-gray-600 px-4 py-2 text-sm transition hover:bg-gray-700"
+>
+  View Profile
+</button>
+
+              <button
+  onClick={() => handleEditMember(member)}
+  className="rounded-lg bg-amber-600 px-4 py-2 text-sm hover:bg-amber-700"
+>
+  Edit
+</button>
+
+              <button
+  onClick={() => handleDeleteMember(member.id)}
+  className="rounded-lg bg-red-600 px-4 py-2 text-sm hover:bg-red-700"
+>
+  Delete
+</button>
 
             </div>
 
@@ -232,6 +350,16 @@ const [roleFilter, setRoleFilter] = useState("All");
         ))}
 
       </div>
+
+
+{/* Member Details Popup */}
+{selectedMember && (
+  <MemberDetails
+    member={selectedMember}
+    onClose={() => setSelectedMember(null)}
+  />
+)}
+
 
 {filteredMembers.length === 0 && (
   <p className="mt-6 text-center text-gray-400">
