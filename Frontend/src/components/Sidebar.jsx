@@ -265,9 +265,18 @@ return ( <div className="w-64 min-h-screen bg-gray-950 p-5 text-white">
   ⚙️ Settings
 </NavLink>
 
-    <div className="rounded-lg p-3 hover:bg-gray-800">
-      ❓ Help
-    </div>
+   <NavLink
+  to="/help"
+  className={({ isActive }) =>
+    `mb-2 block rounded-lg p-3 ${
+      isActive
+        ? "bg-violet-600 text-white"
+        : "text-gray-300 hover:bg-gray-800"
+    }`
+  }
+>
+  ❓ Help
+</NavLink>
 
   </div>
 
