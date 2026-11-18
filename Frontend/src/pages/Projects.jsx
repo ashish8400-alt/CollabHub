@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { getMyProjects, deleteProject } from "../services/projectService";
 import ProjectDetails from "../components/ProjectDetails";
 import ProjectSummary from "../components/ProjectSummary";
 
@@ -11,34 +12,28 @@ function Projects() {
   const [sortBy, setSortBy] = useState("default");
   const [selectedProject, setSelectedProject] = useState(null);
 
-  const [projects, setProjects] = useState([
-    {
-      id: 1,
-      name: "Website Development",
-      description: "Developing a modern and responsive website.",
-      progress: 70,
-      status: "Active",
-      members: 4,
-    },
-    {
-      id: 2,
-      name: "CollabHub Application",
-      description:
-        "Building a team collaboration and project management app.",
-      progress: 45,
-      status: "In Progress",
-      members: 6,
-    },
-    {
-      id: 3,
-      name: "Mobile App Design",
-      description:
-        "Designing an intuitive and user-friendly mobile application.",
-      progress: 20,
-      status: "Planning",
-      members: 3,
-    },
-  ]);
+const [projects, setProjects] = useState([]);
+const [loading, setLoading] = useState(true);
+const [error, setError] = useState("");
+
+useEffect(() => {
+  async function fetchProjects() {
+    try {
+      const data = await getMyProjects();
+
+      setProjects(data.projects);
+    } catch (error) {
+      setError(
+        error.response?.data?.message || "Failed to fetch projects"
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  fetchProjects();
+}, []);
+
 
   // Create Project
   function handleCreateProject(e) {
@@ -102,7 +97,7 @@ function handleEditProject(project) {
 
   setProjects(
     projects.map((item) =>
-      item.id === project.id
+      (item._id || item.id) === (project._id || project.id)
         ? {
             ...item,
             name: newName.trim(),
@@ -116,15 +111,25 @@ function handleEditProject(project) {
 
 
   // Delete Project
-  function handleDeleteProject(id) {
+  async function handleDeleteProject(id) {
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this project?"
     );
 
-    if (confirmDelete) {
-      setProjects(
-        projects.filter((project) => project.id !== id)
+    if (!confirmDelete) return;
+
+    try {
+      if (id && typeof id === "string" && id.length === 24) {
+        await deleteProject(id);
+      }
+      setProjects((prev) =>
+        prev.filter((project) => (project._id || project.id) !== id)
       );
+    } catch (err) {
+      console.error("Failed to delete project on server:", err);
+      const errorMessage =
+        err.response?.data?.message || "Failed to delete project. Please try again.";
+      alert(errorMessage);
     }
   }
 
@@ -167,6 +172,10 @@ const sortedProjects = [...filteredProjects].sort((a, b) => {
 
   return (
     <div className="min-h-screen bg-gray-900 p-8 text-white">
+
+      {loading && <p>Loading projects...</p>}
+
+{error && <p className="text-red-400">{error}</p>}
 
       {/* Heading */}
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
@@ -294,7 +303,7 @@ const sortedProjects = [...filteredProjects].sort((a, b) => {
 
         {sortedProjects.map((project) => (
           <div
-            key={project.id}
+           key={project._id || project.id}
             className="rounded-xl border border-gray-700 bg-gray-800 p-6 transition hover:border-violet-500/60"
           >
             <div className="mb-4 flex items-start justify-between gap-3">
@@ -348,7 +357,7 @@ const sortedProjects = [...filteredProjects].sort((a, b) => {
               </span>
 
               <span className="rounded-lg bg-gray-700 px-3 py-1 text-sm">
-                👥 {project.members}
+               👥 {project.members?.length || 0}  
               </span>
             </div>
 
@@ -371,7 +380,7 @@ const sortedProjects = [...filteredProjects].sort((a, b) => {
 
 
               <button
-                onClick={() => handleDeleteProject(project.id)}
+                onClick={() => handleDeleteProject(project._id || project.id)}
                 className="rounded-lg bg-red-600 px-4 py-3 font-semibold transition hover:bg-red-700"
               >
                 Delete

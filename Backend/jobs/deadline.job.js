@@ -92,6 +92,7 @@ const startDeadlineJob = (io) => {
                 const notification = await Notification.create({
                     recipient: task.assignedTo,
                     sender: task.createdBy,
+                    task: task._id,
                     type: "DEADLINE",
                     message: `Your task "${task.title}" is due within 24 hours`
                 });

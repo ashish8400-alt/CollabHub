@@ -46,7 +46,11 @@ function ProjectDetails({ project, onClose }) {
         {/* Team Members */}
         <div className="mb-6 flex justify-between">
           <span className="text-gray-400">Team Members</span>
-          <span className="text-white">{project.members}</span>
+          <span className="text-white">
+            {Array.isArray(project.members)
+              ? project.members.length
+              : (project.members || 0)}
+          </span>
         </div>
 
         {/* Close Button */}

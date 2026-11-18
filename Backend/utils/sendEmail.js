@@ -35,4 +35,5 @@ const sendEmail = async (to, subject, text) => {
 //     console.log("Email sending failed:", error.message);
 // });
 
+export { transporter };
 export default sendEmail;

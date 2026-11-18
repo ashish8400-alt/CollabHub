@@ -134,9 +134,9 @@ await sendEmail(
 
 console.log("Email sent successfully");
 
-// return res.status(200).json({
-//     message: "OTP sent to your email"
-// });
+return res.status(200).json({
+    message: "OTP sent to your email"
+});
 
 //     const token = jwt.sign(
 //         {
@@ -164,7 +164,7 @@ console.log("Email sent successfully");
 
 
    }catch(error){
-    res.status(500).json({
+    return res.status(500).json({
         message: "Login failed",
         error: error.message
     });

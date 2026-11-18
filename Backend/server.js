@@ -16,6 +16,7 @@ import connectDB from "./config/db.js";
 //middleware
 import authMiddleware from "./middleware/auth.middleware.js";
 import adminMiddleware from "./middleware/admin.middleware.js";
+import errorHandler from "./middleware/error.middleware.js";
 
 
 //models
@@ -49,6 +50,11 @@ const app = express();
 
 const server = createServer(app);
 
+// ===============================
+// CORE MIDDLEWARE
+// ===============================
+app.use(cors());
+app.use(express.json());
 
 app.get( "/api/admin/test", authMiddleware, adminMiddleware, (req, res) => {
         res.status(200).json({ message: "Welcome Admin!", user: req.user });
@@ -236,15 +242,6 @@ io.on("connection", (socket) => {
 
 
 // ===============================
-// MIDDLEWARE
-// ===============================
-
-app.use(cors());
-
-app.use(express.json());
-
-
-// ===============================
 // ROUTES
 // ===============================
 
@@ -275,6 +272,11 @@ app.use("/api/admin", adminRoutes);
 app.get("/", (req, res) => {
     res.send("CollabHub API is running");
 });
+
+// ===============================
+// ERROR HANDLING MIDDLEWARE
+// ===============================
+app.use(errorHandler);
 
 
 // ===============================
