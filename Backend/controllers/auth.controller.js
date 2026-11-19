@@ -27,6 +27,7 @@ const registerUser = async (req, res) => {
         });
 
         if (existingUser) {
+            console.log("User already exists:", normalizedEmail);
             return res.status(400).json({
                 message: "User already exists"
             });
@@ -41,22 +42,24 @@ const registerUser = async (req, res) => {
             .toString();
 
         // 6. Save temporary registration
-        await PendingRegistration.findOneAndUpdate(
-            { email: normalizedEmail },
-            {
-                name: name.trim(),
-                email: normalizedEmail,
-                password: hashedPassword,
-                otp: registerOtp,
-                otpExpiry: new Date(Date.now() + 5 * 60 * 1000)
-            },
-            {
-                upsert: true,
-                new: true,
-                runValidators: true,
-                setDefaultsOnInsert: true
-            }
-        );
+     await PendingRegistration.findOneAndUpdate(
+    { email: normalizedEmail },
+    {
+        $set: {
+            name: name.trim(),
+            password: hashedPassword,
+            otp: registerOtp,
+            otpExpiry: new Date(Date.now() + 5 * 60 * 1000)
+        }
+    },
+    {
+        upsert: true,
+        returnDocument: "after",
+        runValidators: true,
+        setDefaultsOnInsert: true
+    }
+);
+      
 
         // 7. Send OTP email
         await sendEmail(
@@ -71,6 +74,7 @@ const registerUser = async (req, res) => {
         });
 
     } catch (error) {
+        console.error("Registration error:", error.message);
         return res.status(500).json({
             message: "Registration failed",
             error: error.message

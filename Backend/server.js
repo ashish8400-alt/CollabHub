@@ -1,3 +1,4 @@
+import morgan from "morgan";
 import "dotenv/config";
 
 
@@ -53,7 +54,13 @@ const server = createServer(app);
 // ===============================
 // CORE MIDDLEWARE
 // ===============================
-app.use(cors());
+app.use(morgan("dev"));
+app.use(cors(
+    {
+        origin: "*",
+        credentials: true,
+    }
+));
 app.use(express.json());
 
 app.get( "/api/admin/test", authMiddleware, adminMiddleware, (req, res) => {
