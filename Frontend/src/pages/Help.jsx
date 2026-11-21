@@ -64,7 +64,7 @@ function Help() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-900 p-6 text-white md:p-8">
+    <div className="mobile-content-padding min-h-full p-6 text-white md:p-8">
 
       {/* Heading */}
       <div className="mb-8">

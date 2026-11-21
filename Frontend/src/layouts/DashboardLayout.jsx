@@ -14,6 +14,7 @@ import Profile from "../pages/Profile";
 import TeamMembers from "../pages/TeamMembers";
 import Calendar from "../pages/Calendar";
 import Help from "../pages/Help";
+import Admin from "../pages/Admin";
 
 function DashboardLayout() {
   const location = useLocation();
@@ -22,6 +23,8 @@ function DashboardLayout() {
 
   if (location.pathname === "/help") {
     page = <Help />;
+  } else if (location.pathname === "/admin") {
+    page = <Admin />;
   } else if (location.pathname === "/team") {
     page = <TeamMembers />;
   } else if (location.pathname === "/projects") {
@@ -43,15 +46,15 @@ function DashboardLayout() {
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-900">
+    <div className="app-shell flex min-h-screen bg-gray-900">
       <Sidebar />
 
-      <div className="flex flex-1 flex-col">
+      <div className="app-main flex min-w-0 flex-1 flex-col lg:ml-64">
         <Navbar />
 
-        <div className="flex-1">
+        <main className="app-content page-enter flex-1">
           {page}
-        </div>
+        </main>
 
         <Footer />
       </div>

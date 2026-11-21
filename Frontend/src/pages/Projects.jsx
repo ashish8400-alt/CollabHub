@@ -1,5 +1,10 @@
 import { useState, useEffect } from "react";
-import { getMyProjects, deleteProject } from "../services/projectService";
+import {
+  getMyProjects,
+  createProject,
+  updateProject,
+  deleteProject,
+} from "../services/projectService";
 import ProjectDetails from "../components/ProjectDetails";
 import ProjectSummary from "../components/ProjectSummary";
 
@@ -36,31 +41,25 @@ useEffect(() => {
 
 
   // Create Project
-  function handleCreateProject(e) {
+  async function handleCreateProject(e) {
     e.preventDefault();
 
     if (projectName.trim() === "") {
       return;
     }
-
-    const newProject = {
-      id: Date.now(),
-      name: projectName.trim(),
-      description: description.trim(),
-      progress: 0,
-      status: "Planning",
-      members: 1,
-    };
-
-    setProjects([...projects, newProject]);
-
-    setProjectName("");
-    setDescription("");
-    setShowForm(false);
+    try {
+      const data = await createProject(projectName, description);
+      setProjects((previousProjects) => [...previousProjects, data.project]);
+      setProjectName("");
+      setDescription("");
+      setShowForm(false);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to create project");
+    }
   }
 
 // Edit Project
-function handleEditProject(project) {
+async function handleEditProject(project) {
   const newName = window.prompt(
     "Enter project name:",
     project.name
@@ -95,18 +94,21 @@ function handleEditProject(project) {
     return;
   }
 
-  setProjects(
-    projects.map((item) =>
-      (item._id || item.id) === (project._id || project.id)
-        ? {
-            ...item,
-            name: newName.trim(),
-            description: newDescription.trim(),
-            status: newStatus.trim(),
-          }
-        : item
-    )
-  );
+  try {
+    const data = await updateProject(project._id || project.id, {
+      name: newName.trim(),
+      description: newDescription.trim(),
+    });
+    setProjects((previousProjects) =>
+      previousProjects.map((item) =>
+        (item._id || item.id) === (project._id || project.id)
+          ? data.project
+          : item
+      )
+    );
+  } catch (err) {
+    alert(err.response?.data?.message || "Failed to update project");
+  }
 }
 
 
@@ -171,7 +173,7 @@ const sortedProjects = [...filteredProjects].sort((a, b) => {
 
 
   return (
-    <div className="min-h-screen bg-gray-900 p-8 text-white">
+    <div className="mobile-content-padding min-h-full p-6 text-white md:p-8">
 
       {loading && <p>Loading projects...</p>}
 

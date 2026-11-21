@@ -1,359 +1,153 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import TaskForm from "../components/TaskForm";
-import TaskSearch from "../components/TaskSearch";
-import TaskFilter from "../components/TaskFilter";
-import TaskSort from "../components/TaskSort";
-import TaskSummary from "../components/TaskSummary";
-import TaskClearFilters from "../components/TaskClearFilters";
-import TaskPriorityFilter from "../components/TaskPriorityFilter";
 import TaskDetails from "../components/TaskDetails";
-
+import { getMyProjects, getProject } from "../services/projectService";
+import {
+  createTask,
+  getProjectTasks,
+  updateTask,
+  updateTaskStatus,
+  deleteTask,
+} from "../services/taskService";
 
 function Tasks() {
+  const [projects, setProjects] = useState([]);
+  const [projectId, setProjectId] = useState("");
+  const [members, setMembers] = useState([]);
+  const [tasks, setTasks] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [error, setError] = useState("");
 
+  useEffect(() => {
+    getMyProjects()
+      .then((data) => {
+        setProjects(data.projects || []);
+        if (data.projects?.length) setProjectId(data.projects[0]._id);
+      })
+      .catch((err) => setError(err.response?.data?.message || "Failed to load projects"));
+  }, []);
 
-  const [tasks, setTasks] = useState([
-  {
-    id: 1,
-    name: "Create Homepage Design",
-    description: "Design the homepage for the CollabHub application.",
-    priority: "High",
-    dueDate: "2026-10-20",
-    status: "In Progress",
-  },
-  {
-    id: 2,
-    name: "Connect Backend API",
-    description: "Connect the frontend with the backend server.",
-    priority: "Medium",
-    dueDate: "2026-10-22",
-    status: "Pending",
-  },
-  {
-    id: 3,
-    name: "Build Login Page",
-    description: "Create a login page for registered users.",
-    priority: "Low",
-    dueDate: "2026-10-18",
-    status: "Completed",
-  },
-]);
+  useEffect(() => {
+    if (!projectId) return;
+    getProject(projectId)
+      .then((data) => setMembers(data.project?.members || []))
+      .catch(() => setMembers([]));
+    getProjectTasks(projectId)
+      .then((data) => setTasks(data.tasks || []))
+      .catch((err) => setError(err.response?.data?.message || "Failed to load tasks"));
+  }, [projectId]);
 
-const [showForm, setShowForm] = useState(false);
-const [searchTerm, setSearchTerm] = useState("");
-const [statusFilter, setStatusFilter] = useState("All");
-const [sortBy, setSortBy] = useState("default");
-const [priorityFilter, setPriorityFilter] = useState("All");
-const [selectedTask, setSelectedTask] = useState(null);
-
-
-
-function handleCreateTask(newTask) {
-  setTasks((previousTasks) => [...previousTasks, newTask]);
-  setShowForm(false);
-}
-
-
-function handleDeleteTask(id) {
-  const confirmDelete = window.confirm(
-    "Are you sure you want to delete this task?"
-  );
-
-  if (confirmDelete) {
-    setTasks((previousTasks) =>
-      previousTasks.filter((task) => task.id !== id)
-    );
-  }
-}
-
-
-// Edit Task
-function handleEditTask(task) {
-
-  const newName = window.prompt("Enter task name:", task.name);
-
-  if (newName === null || newName.trim() === "") {
-    return;
+  async function handleCreateTask(data) {
+    try {
+      const result = await createTask(projectId, data);
+      setTasks((previous) => [...previous, result.task]);
+      setShowForm(false);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to create task");
+    }
   }
 
-  const newDescription = window.prompt(
-    "Enter task description:",
-    task.description
-  );
-
-  if (newDescription === null) {
-    return;
+  async function handleDeleteTask(taskId) {
+    if (!window.confirm("Are you sure you want to delete this task?")) return;
+    try {
+      await deleteTask(taskId);
+      setTasks((previous) => previous.filter((task) => task._id !== taskId));
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to delete task");
+    }
   }
 
-  const newPriority = window.prompt(
-    "Enter priority: High, Medium, Low",
-    task.priority
-  );
-
-  if (newPriority === null) {
-    return;
+  async function handleEditTask(task) {
+    const title = window.prompt("Enter task title:", task.title);
+    if (!title?.trim()) return;
+    try {
+      const data = await updateTask(task._id, { title: title.trim() });
+      setTasks((previous) => previous.map((item) => item._id === task._id ? data.task : item));
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to update task");
+    }
   }
 
-  const validPriorities = ["High", "Medium", "Low"];
-
-  if (!validPriorities.includes(newPriority.trim())) {
-    alert("Please enter High, Medium, or Low.");
-    return;
+  async function handleChangeStatus(taskId, status) {
+    try {
+      const data = await updateTaskStatus(taskId, status);
+      setTasks((previous) => previous.map((task) => task._id === taskId ? data.task : task));
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to update task status");
+    }
   }
 
-  const newDueDate = window.prompt(
-    "Enter due date (YYYY-MM-DD):",
-    task.dueDate
-  );
+  const normalizedTasks = tasks.map((task) => ({
+    ...task,
+    id: task._id,
+    name: task.title,
+    dueDate: task.dueDate ? new Date(task.dueDate).toISOString().slice(0, 10) : "",
+  })).filter((task) => {
+    const matchesSearch = task.name?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus =
+      statusFilter === "All" ||
+      (statusFilter === "Pending" && task.status === "TODO") ||
+      (statusFilter === "In Progress" && task.status === "IN PROGRESS") ||
+      (statusFilter === "Completed" && task.status === "DONE");
+    return matchesSearch && matchesStatus;
+  });
 
-  if (newDueDate === null || newDueDate.trim() === "") {
-    return;
-  }
-
-  setTasks((previousTasks) =>
-    previousTasks.map((item) =>
-      item.id === task.id
-        ? {
-            ...item,
-            name: newName.trim(),
-            description: newDescription.trim(),
-            priority: newPriority.trim(),
-            dueDate: newDueDate.trim(),
-          }
-        : item
-    )
-  );
-}
-
-
-// Change Task Status
-function handleChangeTaskStatus(id, newStatus) {
-  setTasks((previousTasks) =>
-    previousTasks.map((task) =>
-      task.id === id
-        ? { ...task, status: newStatus }
-        : task
-    )
-  );
-}
-
-const filteredTasks = tasks.filter((task) => {
-  const matchesSearch = task.name
-    .toLowerCase()
-    .includes(searchTerm.toLowerCase());
-
-  const matchesStatus =
-    statusFilter === "All" || task.status === statusFilter;
-
-  const matchesPriority =
-    priorityFilter === "All" || task.priority === priorityFilter;
-
-  return matchesSearch && matchesStatus && matchesPriority;
-});
-
-
-const sortedTasks = [...filteredTasks].sort((a, b) => {
-  if (sortBy === "due-soon") {
-    return a.dueDate.localeCompare(b.dueDate);
-  }
-
-  if (sortBy === "due-late") {
-    return b.dueDate.localeCompare(a.dueDate);
-  }
-
-  if (sortBy === "priority") {
-    const priorityOrder = {
-      High: 1,
-      Medium: 2,
-      Low: 3,
-    };
-
-    return priorityOrder[a.priority] - priorityOrder[b.priority];
-  }
-
-  return 0;
-});
-
-
-return ( <div className="min-h-screen bg-gray-900 p-8 text-white">
-
-  {/* Page Heading */}
- 
-<div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-  <div>
-    <h1 className="text-3xl font-bold">My Tasks</h1>
-
-    <p className="mt-2 text-gray-400">
-      Manage your work and track your progress.
-    </p>
-  </div>
-
-  <button
-    onClick={() => setShowForm(!showForm)}
-    className="rounded-lg bg-violet-600 px-5 py-3 font-semibold hover:bg-violet-700"
-  >
-    {showForm ? "Cancel" : "+ Add Task"}
-  </button>
-</div>
-
-
-{/* Task Summary Cards */}
-<TaskSummary tasks={tasks} />
-
-
-
-{/* Task Form */}
-{showForm && (
-  <TaskForm
-    onCreateTask={handleCreateTask}
-    onCancel={() => setShowForm(false)}
-  />
-)}
-
-
-
-<TaskSearch
-  searchTerm={searchTerm}
-  onSearchChange={setSearchTerm}
-/>
-
-<TaskFilter
-  statusFilter={statusFilter}
-  onStatusChange={setStatusFilter}
-/>
-
-
-<TaskPriorityFilter
-  priorityFilter={priorityFilter}
-  onPriorityChange={setPriorityFilter}
-/>
-
-
-<TaskSort
-  sortBy={sortBy}
-  onSortChange={setSortBy}
-/>
-
-<TaskClearFilters
-  onClear={() => {
-    setSearchTerm("");
-    setStatusFilter("All");
-    setSortBy("default");
-    setPriorityFilter("All");
-  }}
-/>
-
-
-
-  {/* Task Cards */}
-{sortedTasks.map((task) => (
-  <div
-    key={task.id}
-    className="mb-5 rounded-xl border border-gray-800 bg-gray-950 p-6"
-  >
-    {/* Task Name and Priority */}
-    <div className="flex items-center justify-between gap-4">
-
-      <div>
-        <h2 className="text-xl font-bold">
-          {task.name}
-        </h2>
-
-        <p className="mt-2 text-gray-400">
-          {task.description}
-        </p>
+  return (
+    <div className="mobile-content-padding min-h-full p-6 text-white md:p-8">
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold">My Tasks</h1>
+          <p className="mt-2 text-gray-400">Manage your work and track progress.</p>
+        </div>
+        <button onClick={() => setShowForm(!showForm)} className="rounded-lg bg-violet-600 px-5 py-3 font-semibold">
+          {showForm ? "Cancel" : "+ Add Task"}
+        </button>
       </div>
-
-
-      <select
-  value={task.status}
-  onChange={(e) =>
-    handleChangeTaskStatus(task.id, e.target.value)
-  }
-  className={`rounded-lg px-3 py-2 text-sm outline-none ${
-    task.status === "In Progress"
-      ? "bg-blue-500/10 text-blue-400"
-      : task.status === "Pending"
-      ? "bg-yellow-500/10 text-yellow-400"
-      : "bg-green-500/10 text-green-400"
-  }`}
->
-  <option value="Pending">Pending</option>
-  <option value="In Progress">In Progress</option>
-  <option value="Completed">Completed</option>
-</select>
-
-
+      {error && <p className="mb-4 text-red-400">{error}</p>}
+      {projects.length > 0 && (
+        <select value={projectId} onChange={(e) => setProjectId(e.target.value)} className="mb-6 w-full rounded-lg border border-gray-700 bg-gray-800 p-3">
+          {projects.map((project) => <option key={project._id} value={project._id}>{project.name}</option>)}
+        </select>
+      )}
+      {showForm && <TaskForm members={members} onCreateTask={handleCreateTask} onCancel={() => setShowForm(false)} />}
+      <div className="mb-6 flex gap-3">
+        <input value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search tasks..." className="flex-1 rounded-lg border border-gray-700 bg-gray-800 p-3" />
+        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="rounded-lg border border-gray-700 bg-gray-800 p-3">
+          <option>All</option><option>Pending</option><option>In Progress</option><option>Completed</option>
+        </select>
+      </div>
+      {normalizedTasks.length > 0 ? (
+        <div className="grid gap-5 xl:grid-cols-3">
+          {[
+            ["To Do", "TODO", "bg-slate-400"],
+            ["In Progress", "IN PROGRESS", "bg-blue-400"],
+            ["Completed", "DONE", "bg-emerald-400"],
+          ].map(([title, status, dot]) => (
+            <section key={status} className="rounded-2xl border border-gray-700/70 bg-[#101729]/70 p-3">
+              <div className="mb-3 flex items-center justify-between px-2 py-1">
+                <div className="flex items-center gap-2 text-sm font-bold"><span className={`h-2 w-2 rounded-full ${dot}`} />{title}</div>
+                <span className="rounded-md bg-white/[0.05] px-2 py-1 text-xs text-gray-400">{normalizedTasks.filter((task) => task.status === status).length}</span>
+              </div>
+              <div className="space-y-3">
+                {normalizedTasks.filter((task) => task.status === status).map((task) => (
+                  <article key={task._id} className="rounded-xl border border-gray-700/70 bg-[#151D30] p-4 transition hover:border-violet-500/30">
+                    <div className="flex items-start justify-between gap-3"><h2 className="font-semibold">{task.title}</h2><select value={task.status} onChange={(e) => handleChangeStatus(task._id, e.target.value)} className="w-28 rounded-lg border border-gray-700 bg-[#101729] px-2 py-1 text-xs"><option value="TODO">To Do</option><option value="IN PROGRESS">In Progress</option><option value="DONE">Completed</option></select></div>
+                    {task.description && <p className="mt-2 line-clamp-2 text-sm leading-5 text-gray-400">{task.description}</p>}
+                    <div className="mt-4 flex items-center justify-between border-t border-gray-700/60 pt-3"><p className="text-xs text-gray-500">Due {task.dueDate || "—"}</p><div className="flex gap-1"><button onClick={() => handleEditTask(task)} className="rounded-lg px-2 py-1.5 text-xs text-gray-400 hover:bg-white/[0.05] hover:text-white">Edit</button><button onClick={() => setSelectedTask(task)} className="rounded-lg px-2 py-1.5 text-xs text-violet-400 hover:bg-violet-500/10">Details</button><button onClick={() => handleDeleteTask(task._id)} className="rounded-lg px-2 py-1.5 text-xs text-red-400 hover:bg-red-500/10">Delete</button></div></div>
+                  </article>
+                ))}
+                {normalizedTasks.filter((task) => task.status === status).length === 0 && <div className="rounded-xl border border-dashed border-gray-700 p-6 text-center text-xs text-gray-500">No tasks</div>}
+              </div>
+            </section>
+          ))}
+        </div>
+      ) : <div className="rounded-2xl border border-dashed border-gray-700 p-12 text-center text-sm text-gray-400">No tasks found.</div>}
+      {selectedTask && <TaskDetails task={selectedTask} onClose={() => setSelectedTask(null)} />}
     </div>
-
-    {/* Due Date and Status */}
-    <div className="mt-5 flex items-center justify-between gap-4 border-t border-gray-800 pt-4">
-
-      <p className="text-sm text-gray-400">
-        Due Date:{" "}
-        {new Date(task.dueDate + "T00:00:00").toLocaleDateString(
-          "en-GB",
-          {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-          }
-        )}
-      </p>
-
-      <span
-        className={`rounded-lg px-3 py-2 text-sm ${
-          task.status === "In Progress"
-            ? "bg-blue-500/10 text-blue-400"
-            : task.status === "Pending"
-            ? "bg-yellow-500/10 text-yellow-400"
-            : "bg-green-500/10 text-green-400"
-        }`}
-      >
-        {task.status}
-      </span>
-
-<button
-  onClick={() => handleEditTask(task)}
-  className="rounded-lg bg-amber-600 px-3 py-2 text-sm text-white hover:bg-amber-700"
->
-  Edit
-</button>
-
-
-<button
-  onClick={() => setSelectedTask(task)}
-  className="rounded-lg bg-violet-600 px-3 py-2 text-sm text-white hover:bg-violet-700"
->
-  View Details
-</button>
-
-
-<button
-  onClick={() => handleDeleteTask(task.id)}
-  className="rounded-lg bg-red-600 px-3 py-2 text-sm text-white hover:bg-red-700"
->
-  Delete
-</button>
-
-    </div>
-
-  </div>
-))}
-
-
-{/* Task Details Popup */}
-{selectedTask && (
-  <TaskDetails
-    task={selectedTask}
-    onClose={() => setSelectedTask(null)}
-  />
-)}
-
-  
-</div>
-
-);
+  );
 }
 
 export default Tasks;

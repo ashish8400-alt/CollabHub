@@ -1,23 +1,51 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import ChangePasswordForm from "../components/ChangePasswordForm";
+import { getMyProfile, updateMyProfile, changePassword } from "../services/profileService";
+import useAuth from "../context/useAuth";
 
 function Settings() {
-  const [fullName, setFullName] = useState("Ashish");
-  const [email, setEmail] = useState("ashish@example.com");
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
   const [saved, setSaved] = useState(false);
 
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [passwordMessage, setPasswordMessage] = useState("");
 
   const [emailNotifications, setEmailNotifications] = useState(true);
+  const [error, setError] = useState("");
+  const { updateUser, logout } = useAuth();
+  const navigate = useNavigate();
 
-  function handleSaveChanges(e) {
+  useEffect(() => {
+    getMyProfile()
+      .then((data) => {
+        setFullName(data.user?.name || "");
+        setEmail(data.user?.email || "");
+      })
+      .catch((err) => setError(err.response?.data?.message || "Failed to load profile"));
+  }, []);
+
+  async function handleSaveChanges(e) {
     e.preventDefault();
-    setSaved(true);
+    try {
+      const data = await updateMyProfile(fullName);
+      updateUser({ name: data.user.name });
+      setSaved(true);
+      setError("");
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to update profile");
+    }
+  }
+
+  function handleLogout() {
+    if (!window.confirm("Are you sure you want to log out?")) return;
+    logout();
+    navigate("/login", { replace: true });
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 p-8 text-white">
+    <div className="mobile-content-padding min-h-full p-6 text-white md:p-8">
 
       {/* Page Heading */}
       <div className="mb-8">
@@ -27,6 +55,8 @@ function Settings() {
           Manage your account and profile
         </p>
       </div>
+
+      {error && <p className="mb-6 text-sm text-red-400">{error}</p>}
 
       <div className="max-w-3xl space-y-6">
 
@@ -62,12 +92,8 @@ function Settings() {
               <input
                 type="email"
                 value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  setSaved(false);
-                }}
-                className="w-full rounded-lg border border-gray-600 bg-gray-900 p-3 outline-none focus:border-violet-500"
-                required
+                readOnly
+                className="w-full cursor-not-allowed rounded-lg border border-gray-600 bg-gray-900 p-3 text-gray-400 outline-none"
               />
             </div>
 
@@ -116,11 +142,16 @@ function Settings() {
           {showPasswordForm && (
             <ChangePasswordForm
               onCancel={() => setShowPasswordForm(false)}
-              onSubmit={() => {
-                setShowPasswordForm(false);
-                setPasswordMessage(
-                  "Form validated. Connect the backend to update your actual password."
-                );
+              onSubmit={async (currentPassword, newPassword) => {
+                try {
+                  await changePassword(currentPassword, newPassword);
+                  setShowPasswordForm(false);
+                  setPasswordMessage("Password changed successfully.");
+                  setError("");
+                } catch (err) {
+                  setError(err.response?.data?.message || "Failed to change password");
+                  throw err;
+                }
               }}
             />
           )}
@@ -155,6 +186,25 @@ function Settings() {
               }
               className="h-5 w-5 accent-violet-600"
             />
+          </div>
+        </div>
+
+        {/* Logout */}
+        <div className="rounded-xl border border-red-500/30 bg-gray-800 p-6">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-semibold">Logout</h2>
+              <p className="mt-1 text-sm text-gray-400">
+                End your current CollabHub session.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="rounded-lg border border-red-500/50 px-5 py-3 font-medium text-red-400 hover:bg-red-500/10"
+            >
+              Logout
+            </button>
           </div>
         </div>
 

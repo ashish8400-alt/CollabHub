@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import useAuth from "../context/useAuth";
 import { register as registerApi, verifyRegisterOtp } from "../services/authService";
 import { User, Mail, Lock, KeyRound, AlertCircle, CheckCircle2, ArrowRight } from "lucide-react";
 
@@ -95,8 +95,9 @@ function Register() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-950 px-4 py-12 text-white sm:px-6 lg:px-8">
-      <div className="w-full max-w-md space-y-8 rounded-2xl border border-gray-800 bg-gray-900/90 p-8 shadow-2xl backdrop-blur-sm sm:p-10">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#080D19] px-4 py-12 text-white sm:px-6 lg:px-8">
+      <div className="pointer-events-none absolute right-[-10%] top-[-20%] h-[520px] w-[520px] rounded-full bg-blue-600/10 blur-[100px]" />
+      <div className="relative w-full max-w-md space-y-8 rounded-2xl border border-gray-700/70 bg-[#151D30]/95 p-8 shadow-2xl backdrop-blur-xl sm:p-10">
 
         {/* Header Branding */}
         <div className="text-center">

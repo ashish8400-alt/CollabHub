@@ -1,50 +1,42 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import {
+  getMyNotifications,
+  markNotificationAsRead,
+  markAllNotificationsAsRead,
+} from "../services/notificationService";
 
 function Notifications() {
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      title: "Project Updated",
-      message: "Rahul updated the Website Development project.",
-      time: "10 minutes ago",
-      icon: "📁",
-      isRead: false,
-    },
-    {
-      id: 2,
-      title: "Task Completed",
-      message: "Priya completed the Login Page design task.",
-      time: "1 hour ago",
-      icon: "✅",
-      isRead: false,
-    },
-    {
-      id: 3,
-      title: "New Message",
-      message: "Aman sent you a message.",
-      time: "Yesterday",
-      icon: "💬",
-      isRead: true,
-    },
-  ]);
+  const [notifications, setNotifications] = useState([]);
+  const [error, setError] = useState("");
 
-  function handleMarkAllRead() {
-    setNotifications((previousNotifications) =>
-      previousNotifications.map((notification) => ({
-        ...notification,
-        isRead: true,
-      }))
-    );
+  useEffect(() => {
+    getMyNotifications()
+      .then((data) => setNotifications(data.data || []))
+      .catch((err) => setError(err.response?.data?.message || "Failed to load notifications"));
+  }, []);
+
+  async function handleMarkAllRead() {
+    try {
+      await markAllNotificationsAsRead();
+      setNotifications((previous) =>
+        previous.map((notification) => ({ ...notification, isRead: true }))
+      );
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to update notifications");
+    }
   }
 
-  function handleMarkRead(id) {
-    setNotifications((previousNotifications) =>
-      previousNotifications.map((notification) =>
-        notification.id === id
-          ? { ...notification, isRead: true }
-          : notification
-      )
-    );
+  async function handleMarkRead(id) {
+    try {
+      await markNotificationAsRead(id);
+      setNotifications((previous) =>
+        previous.map((notification) =>
+          notification._id === id ? { ...notification, isRead: true } : notification
+        )
+      );
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to update notification");
+    }
   }
 
   const unreadCount = notifications.filter(
@@ -52,7 +44,7 @@ function Notifications() {
   ).length;
 
   return (
-    <div className="min-h-screen bg-gray-900 p-8 text-white">
+    <div className="mobile-content-padding min-h-full p-6 text-white md:p-8">
 
       {/* Heading */}
       <div className="mb-8">
@@ -62,6 +54,7 @@ function Notifications() {
           Stay updated with your team activities
         </p>
       </div>
+      {error && <p className="mb-4 text-red-400">{error}</p>}
 
       {/* Recent Notifications */}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
@@ -88,7 +81,7 @@ function Notifications() {
       <div className="space-y-4">
         {notifications.map((notification) => (
           <div
-            key={notification.id}
+            key={notification._id}
             className={`rounded-xl border p-5 ${
               notification.isRead
                 ? "border-gray-700 bg-gray-800"
@@ -98,13 +91,13 @@ function Notifications() {
             <div className="flex items-start gap-4">
 
               <div className="rounded-lg bg-violet-600/20 p-3">
-                {notification.icon}
+                {notification.type === "MESSAGE" ? "💬" : notification.type === "TASK_COMPLETED" ? "✅" : "📁"}
               </div>
 
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <h3 className="font-semibold">
-                    {notification.title}
+                    {notification.type?.replaceAll("_", " ") || "Notification"}
                   </h3>
 
                   {!notification.isRead && (
@@ -119,12 +112,14 @@ function Notifications() {
                 </p>
 
                 <p className="mt-3 text-sm text-gray-500">
-                  {notification.time}
+                  {notification.createdAt
+                    ? new Date(notification.createdAt).toLocaleString()
+                    : ""}
                 </p>
 
                 {!notification.isRead && (
                   <button
-                    onClick={() => handleMarkRead(notification.id)}
+                    onClick={() => handleMarkRead(notification._id)}
                     className="mt-3 text-sm text-violet-400 hover:text-violet-300"
                   >
                     Mark as Read

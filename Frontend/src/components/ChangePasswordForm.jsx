@@ -6,7 +6,7 @@ function ChangePasswordForm({ onCancel, onSubmit }) {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
 
     if (newPassword.length < 8) {
@@ -19,7 +19,7 @@ function ChangePasswordForm({ onCancel, onSubmit }) {
       return;
     }
 
-    onSubmit();
+    await onSubmit(currentPassword, newPassword);
 
     setCurrentPassword("");
     setNewPassword("");

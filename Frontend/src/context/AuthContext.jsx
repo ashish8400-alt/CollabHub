@@ -1,7 +1,6 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { getCurrentProfile } from "../services/authService";
-
-const AuthContext = createContext(null);
+import AuthContext from "./authStateContext";
 
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(() => localStorage.getItem("token") || null);
@@ -15,7 +14,6 @@ export function AuthProvider({ children }) {
   });
   const [loading, setLoading] = useState(true);
 
-  // Restore & validate active session on initial load or refresh
   useEffect(() => {
     async function restoreSession() {
       const storedToken = localStorage.getItem("token");
@@ -41,9 +39,7 @@ export function AuthProvider({ children }) {
           localStorage.setItem("user", JSON.stringify(freshUser));
         }
       } catch (err) {
-        // If the token is invalid or expired, clear session
         if (err.response?.status === 401) {
-          console.warn("Session expired or token invalid. Logging out.");
           localStorage.removeItem("token");
           localStorage.removeItem("user");
           setToken(null);
@@ -57,7 +53,6 @@ export function AuthProvider({ children }) {
     restoreSession();
   }, []);
 
-  // Login handler after successful OTP verification
   function login(newToken, newUser) {
     localStorage.setItem("token", newToken);
     localStorage.setItem("user", JSON.stringify(newUser));
@@ -65,7 +60,6 @@ export function AuthProvider({ children }) {
     setUser(newUser);
   }
 
-  // Logout handler
   function logout() {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
@@ -73,10 +67,9 @@ export function AuthProvider({ children }) {
     setUser(null);
   }
 
-  // Update user profile info in state & storage
   function updateUser(updatedData) {
-    setUser((prev) => {
-      const updated = { ...prev, ...updatedData };
+    setUser((previousUser) => {
+      const updated = { ...previousUser, ...updatedData };
       localStorage.setItem("user", JSON.stringify(updated));
       return updated;
     });
@@ -93,12 +86,4 @@ export function AuthProvider({ children }) {
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
 }

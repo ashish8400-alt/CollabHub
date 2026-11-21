@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import useAuth from "../context/useAuth";
 import { login as loginApi, verifyLoginOtp } from "../services/authService";
 import { Mail, Lock, KeyRound, AlertCircle, ArrowRight, CheckCircle2 } from "lucide-react";
 
@@ -91,8 +91,9 @@ function Login() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-950 px-4 py-12 text-white sm:px-6 lg:px-8">
-      <div className="w-full max-w-md space-y-8 rounded-2xl border border-gray-800 bg-gray-900/90 p-8 shadow-2xl backdrop-blur-sm sm:p-10">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#080D19] px-4 py-12 text-white sm:px-6 lg:px-8">
+      <div className="pointer-events-none absolute left-[-10%] top-[-25%] h-[520px] w-[520px] rounded-full bg-violet-600/10 blur-[100px]" />
+      <div className="relative w-full max-w-md space-y-8 rounded-2xl border border-gray-700/70 bg-[#151D30]/95 p-8 shadow-2xl backdrop-blur-xl sm:p-10">
         
         {/* Header Branding */}
         <div className="text-center">
@@ -256,6 +257,12 @@ function Login() {
 
         {/* Footer Navigation */}
         <div className="border-t border-gray-800 pt-6 text-center text-sm text-gray-400">
+          <Link
+            to="/forgot-password"
+            className="mr-3 font-semibold text-violet-400 transition hover:text-violet-300 hover:underline"
+          >
+            Forgot password?
+          </Link>
           Don&apos;t have an account?{" "}
           <Link
             to="/register"

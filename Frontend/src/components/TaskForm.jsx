@@ -1,33 +1,31 @@
 import { useState } from "react";
 
-function TaskForm({ onCreateTask, onCancel }) {
+function TaskForm({ onCreateTask, onCancel, members = [] }) {
   const [taskName, setTaskName] = useState("");
   const [taskDescription, setTaskDescription] = useState("");
-  const [taskPriority, setTaskPriority] = useState("Medium");
   const [taskDueDate, setTaskDueDate] = useState("");
+  const [assignedTo, setAssignedTo] = useState("");
 
   function handleSubmit(e) {
     e.preventDefault();
 
-    if (taskName.trim() === "" || taskDueDate === "") {
+    if (taskName.trim() === "" || !assignedTo) {
       return;
     }
 
     const newTask = {
-      id: Date.now(),
-      name: taskName.trim(),
+      title: taskName.trim(),
       description: taskDescription.trim(),
-      priority: taskPriority,
-      dueDate: taskDueDate,
-      status: "Pending",
+      dueDate: taskDueDate || undefined,
+      assignedTo,
     };
 
     onCreateTask(newTask);
 
     setTaskName("");
     setTaskDescription("");
-    setTaskPriority("Medium");
     setTaskDueDate("");
+    setAssignedTo("");
   }
 
   return (
@@ -64,19 +62,23 @@ function TaskForm({ onCreateTask, onCancel }) {
           className="mb-4 w-full rounded-lg border border-gray-700 bg-gray-900 px-4 py-3 text-white outline-none focus:border-violet-500"
         />
 
-        {/* Priority */}
+        {/* Assignee */}
         <label className="mb-2 block text-sm text-gray-300">
-          Priority
+          Assign to
         </label>
 
         <select
-          value={taskPriority}
-          onChange={(e) => setTaskPriority(e.target.value)}
+          value={assignedTo}
+          onChange={(e) => setAssignedTo(e.target.value)}
           className="mb-4 w-full rounded-lg border border-gray-700 bg-gray-900 px-4 py-3 text-white outline-none focus:border-violet-500"
+          required
         >
-          <option value="High">High</option>
-          <option value="Medium">Medium</option>
-          <option value="Low">Low</option>
+          <option value="">Select a project member</option>
+          {members.map((member) => (
+            <option key={member._id} value={member._id}>
+              {member.name} ({member.email})
+            </option>
+          ))}
         </select>
 
         {/* Due Date */}
