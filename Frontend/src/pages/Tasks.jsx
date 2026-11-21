@@ -5,12 +5,13 @@ import { getMyProjects, getProject } from "../services/projectService";
 import {
   createTask,
   getProjectTasks,
-  updateTask,
   updateTaskStatus,
   deleteTask,
 } from "../services/taskService";
+import { useNavigate } from "react-router-dom";
 
 function Tasks() {
+  const navigate = useNavigate();
   const [projects, setProjects] = useState([]);
   const [projectId, setProjectId] = useState("");
   const [members, setMembers] = useState([]);
@@ -61,14 +62,7 @@ function Tasks() {
   }
 
   async function handleEditTask(task) {
-    const title = window.prompt("Enter task title:", task.title);
-    if (!title?.trim()) return;
-    try {
-      const data = await updateTask(task._id, { title: title.trim() });
-      setTasks((previous) => previous.map((item) => item._id === task._id ? data.task : item));
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to update task");
-    }
+    navigate(`/tasks/${task._id}/edit`);
   }
 
   async function handleChangeStatus(taskId, status) {

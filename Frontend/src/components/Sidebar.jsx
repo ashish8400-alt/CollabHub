@@ -7,10 +7,10 @@ import {
 import useAuth from "../context/useAuth";
 
 const primaryItems = [
-  { to: "/", label: "Dashboard", icon: LayoutDashboard, end: true },
+  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, end: true },
   { to: "/projects", label: "Projects", icon: FolderKanban },
   { to: "/tasks", label: "My Tasks", icon: CircleCheckBig },
-  { to: "/team", label: "Team Members", icon: Users },
+  { to: "/team-members", label: "Team Members", icon: Users },
   { to: "/messages", label: "Messages", icon: MessageCircle },
   { to: "/calendar", label: "Calendar", icon: CalendarDays },
   { to: "/notifications", label: "Notifications", icon: Bell },
@@ -25,7 +25,7 @@ function Sidebar() {
   function handleLogout() {
     if (!window.confirm("Are you sure you want to log out?")) return;
     logout();
-    navigate("/login", { replace: true });
+    navigate("/", { replace: true });
   }
 
   const width = collapsed ? "lg:w-20" : "lg:w-64";
@@ -39,7 +39,7 @@ function Sidebar() {
 
       <aside className={`sidebar-shell fixed inset-y-0 left-0 z-50 flex ${width} flex-col overflow-hidden transition-all duration-300 ${open ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}>
         <div className="flex h-20 items-center justify-between px-5">
-          <NavLink to="/" className="flex min-w-0 items-center gap-3">
+          <NavLink to="/dashboard" className="flex min-w-0 items-center gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-600 text-sm font-extrabold shadow-lg shadow-violet-600/20">CH</div>
             {!collapsed && <div><p className="text-lg font-bold tracking-tight">CollabHub</p><p className="text-[10px] uppercase tracking-[0.18em] text-gray-500">Workspace</p></div>}
           </NavLink>

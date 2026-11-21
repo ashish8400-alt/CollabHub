@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import useAuth from "../context/useAuth";
+import { useNavigate } from "react-router-dom";
 import {
   getMyProfile,
   updateMyProfile,
@@ -9,7 +10,7 @@ import {
 
 
 function Profile() {
-
+  const navigate = useNavigate();
 
   const [fullName, setFullName] = useState("");
 const [email, setEmail] = useState("");
@@ -135,6 +136,13 @@ onChange={(e) => {
   className="rounded-lg bg-violet-600 px-6 py-3 font-semibold hover:bg-violet-700"
 >
   Save Profile
+</button>
+<button
+  type="button"
+  onClick={() => navigate("/settings/profile/edit")}
+  className="ml-3 rounded-lg border border-gray-600 px-6 py-3 font-semibold hover:bg-gray-700"
+>
+  Open dedicated editor
 </button>
 
 {saved && (

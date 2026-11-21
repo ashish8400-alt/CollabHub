@@ -15,6 +15,9 @@ import TeamMembers from "../pages/TeamMembers";
 import Calendar from "../pages/Calendar";
 import Help from "../pages/Help";
 import Admin from "../pages/Admin";
+import ProjectEdit from "../pages/ProjectEdit";
+import TaskEdit from "../pages/TaskEdit";
+import ProfileEdit from "../pages/ProfileEdit";
 
 function DashboardLayout() {
   const location = useLocation();
@@ -27,6 +30,14 @@ function DashboardLayout() {
     page = <Admin />;
   } else if (location.pathname === "/team") {
     page = <TeamMembers />;
+  } else if (location.pathname === "/team-members") {
+    page = <TeamMembers />;
+  } else if (/^\/projects\/[^/]+\/edit$/.test(location.pathname)) {
+    page = <ProjectEdit />;
+  } else if (/^\/tasks\/[^/]+\/edit$/.test(location.pathname)) {
+    page = <TaskEdit />;
+  } else if (location.pathname === "/settings/profile/edit") {
+    page = <ProfileEdit />;
   } else if (location.pathname === "/projects") {
     page = <Projects />;
   } else if (location.pathname === "/tasks") {

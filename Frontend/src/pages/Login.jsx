@@ -18,7 +18,7 @@ function Login() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const destination = location.state?.from?.pathname || "/";
+  const destination = location.state?.from?.pathname || "/dashboard";
 
   // If already authenticated, redirect to destination
   if (isAuthenticated) {

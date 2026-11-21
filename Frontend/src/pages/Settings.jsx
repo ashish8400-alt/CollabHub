@@ -41,7 +41,7 @@ function Settings() {
   function handleLogout() {
     if (!window.confirm("Are you sure you want to log out?")) return;
     logout();
-    navigate("/login", { replace: true });
+    navigate("/", { replace: true });
   }
 
   return (
@@ -102,6 +102,13 @@ function Settings() {
               className="rounded-lg bg-violet-600 px-5 py-3 font-medium hover:bg-violet-700"
             >
               Save Changes
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate("/settings/profile/edit")}
+              className="ml-3 rounded-lg border border-gray-600 px-5 py-3 font-medium hover:bg-gray-700"
+            >
+              Open Profile Editor
             </button>
 
             {saved && (

@@ -2,13 +2,14 @@ import { useState, useEffect } from "react";
 import {
   getMyProjects,
   createProject,
-  updateProject,
   deleteProject,
 } from "../services/projectService";
 import ProjectDetails from "../components/ProjectDetails";
 import ProjectSummary from "../components/ProjectSummary";
+import { useNavigate } from "react-router-dom";
 
 function Projects() {
+  const navigate = useNavigate();
   const [showForm, setShowForm] = useState(false);
   const [projectName, setProjectName] = useState("");
   const [description, setDescription] = useState("");
@@ -60,55 +61,7 @@ useEffect(() => {
 
 // Edit Project
 async function handleEditProject(project) {
-  const newName = window.prompt(
-    "Enter project name:",
-    project.name
-  );
-
-  if (newName === null || newName.trim() === "") {
-    return;
-  }
-
-  const newDescription = window.prompt(
-    "Enter project description:",
-    project.description
-  );
-
-  if (newDescription === null) {
-    return;
-  }
-
-  const newStatus = window.prompt(
-    "Enter status: Active, In Progress, Planning",
-    project.status
-  );
-
-  if (newStatus === null) {
-    return;
-  }
-
-  const validStatuses = ["Active", "In Progress", "Planning"];
-
-  if (!validStatuses.includes(newStatus.trim())) {
-    alert("Please enter a valid status.");
-    return;
-  }
-
-  try {
-    const data = await updateProject(project._id || project.id, {
-      name: newName.trim(),
-      description: newDescription.trim(),
-    });
-    setProjects((previousProjects) =>
-      previousProjects.map((item) =>
-        (item._id || item.id) === (project._id || project.id)
-          ? data.project
-          : item
-      )
-    );
-  } catch (err) {
-    alert(err.response?.data?.message || "Failed to update project");
-  }
+  navigate(`/projects/${project._id || project.id}/edit`);
 }
 
 

@@ -4,7 +4,7 @@ import { useState } from "react";
 import useAuth from "../context/useAuth";
 
 const titles = {
-  "/": ["Dashboard", "Your workspace overview"], "/projects": ["Projects", "Organize and track work"],
+  "/dashboard": ["Dashboard", "Your workspace overview"], "/projects": ["Projects", "Organize and track work"],
   "/tasks": ["My Tasks", "Your current assignments"], "/team": ["Team Members", "People in your workspace"],
   "/messages": ["Messages", "Team conversations"], "/calendar": ["Calendar", "Schedule and deadlines"],
   "/notifications": ["Notifications", "Updates and activity"], "/settings": ["Settings", "Account preferences"],
@@ -17,12 +17,12 @@ function Navbar() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [title, subtitle] = titles[location.pathname] || titles["/"];
+  const [title, subtitle] = titles[location.pathname] || titles["/dashboard"];
 
   function handleLogout() {
     if (!window.confirm("Are you sure you want to log out?")) return;
     logout();
-    navigate("/login", { replace: true });
+    navigate("/", { replace: true });
   }
 
   return (
